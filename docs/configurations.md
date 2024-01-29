@@ -165,7 +165,8 @@ Social Icons are optional. To use them you will need to set at least all the fol
 | Configuration  | Type   | Required | Description                              | Example                         |
 | -------------- | ------ | -------- | ---------------------------------------- | ------------------------------- |
 | name           | string | Yes      | Icon name.                               | `"Github"`                      |
-| icon           | string | Yes      | FontAwesome icon classes.                | `"fa-brands fa-github"`         |
+| icon           | string | Yes      | Icon title.                              | `"github"`                      |
+| iconVendor     | string | No       | Icon vendor (defaults to `mdi`)          | `"mdi"`, `simple-icons`         |
 | weight         | int    | Yes      | Icon order.                              | `1`                             |
 | url            | string | Yes      | URL to redirect.                         | `"https://github.com/johndoe/"` |
 | rel            | string | No       | Define the relationship                  | `"me"`                          |
@@ -175,17 +176,17 @@ An example:
 ```toml
 [[params.social]]
   name = "Github"
-  icon = "fa-brands fa-github fa-2x"
+  icon = "github"
   weight = 1
   url = "https://github.com/johndoe/"
 [[params.social]]
   name = "Gitlab"
-  icon = "fa-brands fa-gitlab fa-2x"
+  icon = "gitlab"
   weight = 2
   url = "https://gitlab.com/johndoe/"
 [[params.social]]
   name = "Twitter"
-  icon = "fa-brands fa-x-twitter fa-2x"
+  icon = "twitter"
   weight = 3
   url = "https://twitter.com/johndoe/"
 ```
@@ -316,17 +317,17 @@ style = "github-dark"
 # Social links
 [[params.social]]
   name = "Github"
-  icon = "fa-brands fa-github fa-2x"
+  icon = "github"
   weight = 1
   url = "https://github.com/johndoe/"
 [[params.social]]
   name = "Gitlab"
-  icon = "fa-brands fa-gitlab fa-2x"
+  icon = "gitlab"
   weight = 2
   url = "https://gitlab.com/johndoe/"
 [[params.social]]
   name = "Twitter"
-  icon = "fa-brands fa-x-twitter fa-2x"
+  icon = "twitter"
   weight = 3
   url = "https://twitter.com/johndoe/"
 

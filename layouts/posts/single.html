@@ -15,14 +15,26 @@
         <div class="post-meta">
           <div class="date">
             <span class="posted-on">
-              <i class="fa-solid fa-calendar" aria-hidden="true"></i>
+              <span aria-hidden="true">
+                {{ $context := dict
+                  "vendor" "mdi"
+                  "name" "calendar"
+                }}
+                {{ partial "icons/icon" $context }}
+              </span>
               <time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">
                 {{ .Date | time.Format (.Site.Params.dateFormat | default "January 2, 2006" ) }}
               </time>
             </span>
             <span class="reading-time">
-              <i class="fa-solid fa-clock" aria-hidden="true"></i>
-              {{ i18n "reading_time" .ReadingTime }}
+              <span aria-hidden="true">
+                {{ $context := dict
+                  "vendor" "mdi"
+                  "name" "clock"
+                }}
+                {{ partial "icons/icon" $context }}
+                {{ i18n "reading_time" .ReadingTime }}
+              </span>
             </span>
           </div>
           {{ with .GetTerms "authors" }}{{ partial "taxonomy/authors.html" . }}{{ end }}
