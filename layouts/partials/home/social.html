@@ -4,7 +4,13 @@
     {{ if .icon }}
       <li>
         <a href="{{ .url | safeURL }}" aria-label="{{ .name }}" {{ if .rel }}rel="{{ .rel }}"{{ end }} {{ if .target }}target="{{ .target }}"{{ end }} {{ if .type }}type="{{ .type }}"{{ end }}>
-          <i class="{{ .icon }}" aria-hidden="true"></i>
+          {{ $context := dict
+            "vendor" "mdi"
+            "name" .icon
+            "height" "2em"
+            "width" "2em"
+          }}
+          {{ partial "icons/icon" $context }}
         </a>
       </li>
     {{ else }}
