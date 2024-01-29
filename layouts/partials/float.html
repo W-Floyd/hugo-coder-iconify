@@ -1,7 +1,13 @@
 {{ if not .Site.Params.hideColorSchemeToggle }}
 <div class="float-container">
-    <a id="dark-mode-toggle" class="colorscheme-toggle">
-        <i class="fa-solid fa-adjust fa-fw" aria-hidden="true"></i>
+    <a id="dark-mode-toggle" class="colorscheme-toggle" aria-hidden="true"> <!-- TODO: Center this -->
+        {{ $context := dict
+            "vendor" "mdi"
+            "name" "theme-light-dark"
+            "height" "1.5em"
+            "width" "1.5em"
+          }}
+          {{ partial "icons/icon" $context }}
     </a>
 </div>
 {{ end }}

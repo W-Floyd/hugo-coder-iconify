@@ -1,6 +1,6 @@
 baseURL = "http://www.example.com"
 title = "johndoe"
-theme = "hugo-coder"
+theme = "hugo-coder-iconify"
 languageCode = "en"
 defaultContentLanguage = "en"
 enableEmoji = true

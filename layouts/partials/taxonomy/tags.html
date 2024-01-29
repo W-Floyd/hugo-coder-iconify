@@ -1,5 +1,11 @@
 <div class="tags">
-  <i class="fa-solid fa-tag" aria-hidden="true"></i>
+  <span aria-hidden="true">
+    {{ $context := dict
+      "vendor" "mdi"
+      "name" "tag"
+    }}
+    {{ partial "icons/icon" $context }}
+  </span>
   {{- range $index, $el := . -}}
     {{- if gt $index 0 }}
       <span class="separator">•</span>

@@ -8,7 +8,11 @@
     {{ if or .Site.Menus.main hugo.IsMultilingual }}
       <input type="checkbox" id="menu-toggle" />
       <label class="menu-button float-right" for="menu-toggle">
-        <i class="fa-solid fa-bars fa-fw" aria-hidden="true"></i>
+        {{ $context := dict
+          "vendor" "mdi"
+          "name" "menu"
+        }}
+        {{ partial "icons/icon" $context }}
       </label>
       <ul class="navigation-list">
         {{ with .Site.Menus.main}}

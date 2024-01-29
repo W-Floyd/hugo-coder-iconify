@@ -1,5 +1,11 @@
 <div class="authors">
-  <i class="fa-solid fa-user" aria-hidden="true"></i>
+  <span aria-hidden="true">
+    {{ $context := dict
+      "vendor" "mdi"
+      "name" "user"
+    }}
+    {{ partial "icons/icon" $context }}
+  </span>
   {{- range $index, $el := . -}}
     {{- if gt $index 0 }}
       <span class="separator">•</span>
