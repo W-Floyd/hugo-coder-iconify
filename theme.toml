@@ -14,7 +14,7 @@ tags = [
   "personal",
   "light",
   "dark",
-  "dark mode"
+  "dark mode",
 ]
 features = [
   "analytics",
@@ -22,7 +22,7 @@ features = [
   "multilingual",
   "pagination",
   "single-column",
-  "syntax-highlighting"
+  "syntax-highlighting",
 ]
 min_version = "0.124.0"
 
