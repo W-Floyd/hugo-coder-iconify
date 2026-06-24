@@ -1,88 +1,82 @@
 const body = document.body;
-const darkModeToggle = document.getElementById('dark-mode-toggle');
+const toggle = document.getElementById('dark-mode-toggle');
 const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-// The inline script in baseof already resolved the active scheme and set the
-// body class before first paint. Re-run setTheme so comment-embed iframes
-// (utterances/giscus) receive the current theme.
-setTheme(body.classList.contains("colorscheme-dark") ? "dark" : "light");
+// Three modes; the toggle cycles through them in this order.
+const MODES = ['auto', 'light', 'dark'];
 
-if (darkModeToggle) {
-    darkModeToggle.addEventListener('click', () => {
-        let theme = body.classList.contains("colorscheme-dark") ? "light" : "dark";
-        setTheme(theme);
-        rememberTheme(theme);
+// Current mode: an explicit saved choice, else the server-rendered default
+// reflected in the body class (already set by the inline resolver in baseof).
+function currentMode() {
+    const stored = localStorage.getItem('colorscheme');
+    if (MODES.includes(stored)) return stored;
+    if (body.classList.contains('colorscheme-light')) return 'light';
+    if (body.classList.contains('colorscheme-dark')) return 'dark';
+    return 'auto';
+}
+
+// Effective light/dark appearance for a mode ('auto' follows the OS).
+function effectiveTheme(mode) {
+    return mode === 'auto' ? (darkModeMediaQuery.matches ? 'dark' : 'light') : mode;
+}
+
+// Apply a mode. The body class drives both the CSS palette and which toggle
+// icon shows; in 'auto' the CSS prefers-color-scheme rules follow the OS.
+function applyMode(mode, waitForEmbeds) {
+    body.classList.remove('colorscheme-auto', 'colorscheme-light', 'colorscheme-dark');
+    body.classList.add('colorscheme-' + mode);
+    document.documentElement.style.colorScheme = mode === 'auto' ? 'light dark' : mode;
+    notifyEmbeds(effectiveTheme(mode), waitForEmbeds);
+    document.dispatchEvent(new Event('themeChanged'));
+}
+
+// Persist a chosen mode and apply it.
+function setMode(mode) {
+    localStorage.setItem('colorscheme', mode);
+    applyMode(mode, false);
+}
+
+// Sync runtime state with what the inline resolver already painted, and notify
+// comment embeds (which load after this script) of the active theme.
+applyMode(currentMode(), true);
+
+if (toggle) {
+    toggle.addEventListener('click', () => {
+        setMode(MODES[(MODES.indexOf(currentMode()) + 1) % MODES.length]);
     });
 }
 
-darkModeMediaQuery.addListener((event) => {
-    setTheme(event.matches ? "dark" : "light");
+// In 'auto' mode, follow live OS changes. The CSS @media rule already restyles
+// the page; this keeps the color-scheme hint and comment embeds in sync.
+darkModeMediaQuery.addEventListener('change', () => {
+    if (currentMode() === 'auto') applyMode('auto', false);
 });
 
-function setTheme(theme) {
-    body.classList.remove('colorscheme-auto');
-    let inverse = theme === 'dark' ? 'light' : 'dark';
-    body.classList.remove('colorscheme-' + inverse);
-    body.classList.add('colorscheme-' + theme);
-    document.documentElement.style['color-scheme'] = theme;
+// Push the active theme to comment embeds (utterances/giscus) if present.
+function notifyEmbeds(theme, wait) {
+    const setUtterances = (frame) => frame.contentWindow.postMessage(
+        { type: 'set-theme', theme: theme === 'dark' ? 'github-dark' : 'github-light' },
+        'https://utteranc.es'
+    );
+    const utterances = document.querySelector('.utterances-frame');
+    if (utterances) setUtterances(utterances);
+    else if (wait) waitForElm('.utterances-frame').then(setUtterances);
 
-    function waitForElm(selector) {
-        return new Promise(resolve => {
-            if (document.querySelector(selector)) {
-                return resolve(document.querySelector(selector));
-            }
-    
-            const observer = new MutationObserver(mutations => {
-                if (document.querySelector(selector)) {
-                    resolve(document.querySelector(selector));
-                    observer.disconnect();
-                }
-            });
-
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true
-            });
-        });
-    }
-
-    if (theme === 'dark') {
-        const message = {
-            type: 'set-theme',
-            theme: 'github-dark'
-        };
-        waitForElm('.utterances-frame').then((iframe) => {
-            iframe.contentWindow.postMessage(message, 'https://utteranc.es');
-        })
-        
-    }
-    else {
-        const message = {
-            type: 'set-theme',
-            theme: 'github-light'
-        };
-        waitForElm('.utterances-frame').then((iframe) => {
-            iframe.contentWindow.postMessage(message, 'https://utteranc.es');
-        })
-        
-    }
-
-    function sendMessage(message) {
-        const iframe = document.querySelector('iframe.giscus-frame');
-        if (!iframe) return;
-        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
-      }
-      sendMessage({
-        setConfig: {
-          theme: theme,
-        },
-      });
-    
-    // Create and send event
-    const event = new Event('themeChanged');
-    document.dispatchEvent(event);
+    const giscus = document.querySelector('iframe.giscus-frame');
+    if (giscus) giscus.contentWindow.postMessage({ giscus: { setConfig: { theme } } }, 'https://giscus.app');
 }
 
-function rememberTheme(theme) {
-    localStorage.setItem('colorscheme', theme);
+function waitForElm(selector) {
+    return new Promise((resolve) => {
+        const found = document.querySelector(selector);
+        if (found) return resolve(found);
+        const observer = new MutationObserver(() => {
+            const el = document.querySelector(selector);
+            if (el) {
+                resolve(el);
+                observer.disconnect();
+            }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+    });
 }

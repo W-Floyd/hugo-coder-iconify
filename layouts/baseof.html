@@ -17,23 +17,23 @@
 <body class="{{ $csClass }}{{ if .Site.Params.rtl }} rtl{{ end }}">
   {{ if not .Site.Params.disableDefaultJsScripts }}
   {{/*
-    Resolve the active color scheme before first paint (honoring a saved
-    preference, else the server-rendered default, else the OS setting). Running
-    here — as the first thing in <body>, where document.body already exists —
-    avoids the flash that an end-of-body script would cause, so no
-    preload-transitions hack is needed.
+    Resolve the active color-scheme mode (auto | light | dark) before first
+    paint, so there's no flash. "auto" keeps the colorscheme-auto class so the
+    CSS prefers-color-scheme rules follow the OS live. A saved choice wins;
+    otherwise the server-rendered default class is used. Running here — first
+    in <body>, where document.body exists — avoids an end-of-body flash.
   */}}
   <script>
     (function () {
       var c = document.body.classList;
       var stored = localStorage.getItem("colorscheme");
-      var theme = stored
-        || (c.contains("colorscheme-dark") ? "dark"
-          : c.contains("colorscheme-light") ? "light"
-          : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+      var mode = (stored === "auto" || stored === "light" || stored === "dark") ? stored
+        : (c.contains("colorscheme-light") ? "light"
+          : c.contains("colorscheme-dark") ? "dark"
+          : "auto");
       c.remove("colorscheme-auto", "colorscheme-light", "colorscheme-dark");
-      c.add("colorscheme-" + theme);
-      document.documentElement.style.colorScheme = theme;
+      c.add("colorscheme-" + mode);
+      document.documentElement.style.colorScheme = mode === "auto" ? "light dark" : mode;
     })();
   </script>
   {{ end }}

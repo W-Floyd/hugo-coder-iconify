@@ -1,13 +1,21 @@
 {{ if not .Site.Params.hideColorSchemeToggle }}
 <div class="float-container">
-    <a id="dark-mode-toggle" class="colorscheme-toggle" aria-hidden="true"> <!-- TODO: Center this -->
-        {{ $context := dict
-            "vendor" "mdi"
-            "name" "theme-light-dark"
-            "height" "1.5em"
-            "width" "1.5em"
-          }}
-          {{ partial "icons/icon" $context }}
-    </a>
+  {{/*
+    Tri-state color-scheme toggle: cycles auto -> light -> dark -> auto (handled
+    in coder.js). All three icons are rendered; CSS shows only the one matching
+    the active mode (the body.colorscheme-* class), so it's correct before JS
+    runs and updates instantly on toggle.
+  */}}
+  <a id="dark-mode-toggle" class="colorscheme-toggle" role="button" tabindex="0" aria-label="{{ i18n "color_scheme_toggle" | default "Toggle color scheme" }}">
+    <span class="toggle-icon icon-auto" title="Color scheme: follow system">
+      {{ partial "icons/icon" (dict "vendor" "mdi" "name" "theme-light-dark" "height" "1.5em" "width" "1.5em") }}
+    </span>
+    <span class="toggle-icon icon-light" title="Color scheme: light">
+      {{ partial "icons/icon" (dict "vendor" "mdi" "name" "white-balance-sunny" "height" "1.5em" "width" "1.5em") }}
+    </span>
+    <span class="toggle-icon icon-dark" title="Color scheme: dark">
+      {{ partial "icons/icon" (dict "vendor" "mdi" "name" "weather-night" "height" "1.5em" "width" "1.5em") }}
+    </span>
+  </a>
 </div>
 {{ end }}

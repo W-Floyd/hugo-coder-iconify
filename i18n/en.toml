@@ -65,3 +65,6 @@ other = "Link to heading"
 
 [entry_toc]
 other = "Table of Contents"
+
+[color_scheme_toggle]
+other = "Toggle color scheme"
