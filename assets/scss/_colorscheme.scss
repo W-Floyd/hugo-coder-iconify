@@ -1,0 +1,26 @@
+// Color scheme as CSS custom properties.
+//
+// The whole UI references these six --vars (via var(--fg-color), etc.), so
+// switching light<->dark is just a matter of redefining the *values* in one
+// place instead of re-declaring every selector in a parallel _*_dark.scss.
+// The Sass $-variables remain the source of truth, so existing color
+// overrides still flow through.
+
+:root {
+  --fg-color: #{$fg-color};
+  --bg-color: #{$bg-color};
+  --alt-bg-color: #{$alt-bg-color};
+  --alt-fg-color: #{$alt-fg-color};
+  --darker-alt-bg-color: #{$darker-alt-bg-color};
+  --link-color: #{$link-color};
+}
+
+// Dark values. Included by coder.scss only when the site uses a dark scheme.
+@mixin dark-scheme {
+  --fg-color: #{$fg-color-dark};
+  --bg-color: #{$bg-color-dark};
+  --alt-bg-color: #{$alt-bg-color-dark};
+  --alt-fg-color: #{$alt-fg-color-dark};
+  --darker-alt-bg-color: #{$lighter-alt-bg-color-dark};
+  --link-color: #{$link-color-dark};
+}

@@ -1,6 +1,7 @@
-@import "css/normalize";
+@import "reset";
 @import "variables";
 @import "mixins";
+@import "colorscheme";
 @import "base";
 @import "content";
 @import "notices";
@@ -12,3 +13,24 @@
 @import "float";
 @import "mastodon";
 @import "syntax";
+
+{{/*
+  Dark scheme. The whole UI reads CSS custom properties, so dark mode just
+  redefines those six values (see _colorscheme.scss) — no parallel selector
+  tree. Syntax highlighting is a genuinely distinct theme (GitHub light vs
+  dark) and keeps its own rule set. Emitted only when the site uses a dark
+  scheme, so light-only sites ship no dark CSS.
+*/}}
+{{ if or (eq .Site.Params.colorScheme "auto") (eq .Site.Params.colorScheme "dark") }}
+body.colorscheme-dark {
+  @include dark-scheme;
+}
+
+body.colorscheme-auto {
+  @media (prefers-color-scheme: dark) {
+    @include dark-scheme;
+  }
+}
+
+@import "syntax_dark";
+{{ end }}

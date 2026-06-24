@@ -14,7 +14,29 @@
 {{ $csClass = "colorscheme-auto" }}
 {{ end }}
 
-<body class="preload-transitions {{ $csClass }}{{ if .Site.Params.rtl }} rtl{{ end }}">
+<body class="{{ $csClass }}{{ if .Site.Params.rtl }} rtl{{ end }}">
+  {{ if not .Site.Params.disableDefaultJsScripts }}
+  {{/*
+    Resolve the active color scheme before first paint (honoring a saved
+    preference, else the server-rendered default, else the OS setting). Running
+    here — as the first thing in <body>, where document.body already exists —
+    avoids the flash that an end-of-body script would cause, so no
+    preload-transitions hack is needed.
+  */}}
+  <script>
+    (function () {
+      var c = document.body.classList;
+      var stored = localStorage.getItem("colorscheme");
+      var theme = stored
+        || (c.contains("colorscheme-dark") ? "dark"
+          : c.contains("colorscheme-light") ? "light"
+          : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+      c.remove("colorscheme-auto", "colorscheme-light", "colorscheme-dark");
+      c.add("colorscheme-" + theme);
+      document.documentElement.style.colorScheme = theme;
+    })();
+  </script>
+  {{ end }}
   {{ partial "float" . }}
   <main class="wrapper">
     {{ partial "header.html" . }}

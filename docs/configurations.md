@@ -263,6 +263,15 @@ An example:
   connectsrc = ["'self'"]
 ```
 
+> **Note on inline scripts.** The theme emits a few inline `<script>` blocks —
+> the color-scheme resolver (run before first paint to avoid a flash of the
+> wrong theme), the Mermaid initializer, and the Mastodon comments embed.
+> Browsers block inline scripts under CSP unless `scriptsrc` permits them, so
+> if you enable CSP you must allow them or those features break. Either add
+> `'unsafe-inline'` to `scriptsrc` (simplest, as in the example above) or, for
+> a stricter policy, add each script's `'sha256-…'` hash instead. If you don't
+> set `[params.csp]` at all, no CSP is emitted and inline scripts run normally.
+
 ## Complete Example
 
 This is a complete configuration example with some recommended values.

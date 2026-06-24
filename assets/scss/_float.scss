@@ -11,19 +11,19 @@
     width: 3rem;
     height: 3rem;
     font-size: 2rem;
-    color: $alt-fg-color;
-    background-color: $alt-bg-color;
+    color: var(--alt-fg-color);
+    background-color: var(--alt-bg-color);
     border-radius: 0.2rem;
     opacity: 0.5;
     transition: all 0.25s ease-in;
 
     &:hover,
     &:focus {
-      color: $link-color;
+      color: var(--link-color);
       opacity: 1;
 
       @media only screen and (max-width: 768px) {
-        color: $alt-fg-color;
+        color: var(--alt-fg-color);
         opacity: 0.5;
       }
     }

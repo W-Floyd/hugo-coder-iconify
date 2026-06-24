@@ -1,0 +1,61 @@
+// Minimal modern reset.
+//
+// Replaces normalize.css v8.0.1, which was ~90% fixes for IE 10/11, legacy
+// Edge, Chrome 57- and old Firefox. This keeps only the rules evergreen
+// browsers still need; everything else (b/strong weight, code/pre fonts,
+// img max-width, box-sizing) is already set in _base.scss.
+
+html {
+  // Prevent iOS text size inflation on orientation change.
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  // Wrap long, unbroken URLs instead of overflowing their container.
+  word-wrap: break-word;
+}
+
+// Form controls don't inherit typography by default.
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: 1.15;
+  margin: 0;
+}
+
+button,
+[type="button"],
+[type="reset"],
+[type="submit"] {
+  -webkit-appearance: button;
+  appearance: button;
+}
+
+small {
+  font-size: 80%;
+}
+
+// Keep sub/sup from shifting line height.
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+sup {
+  top: -0.5em;
+}

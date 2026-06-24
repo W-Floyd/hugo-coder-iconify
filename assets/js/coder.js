@@ -2,14 +2,10 @@ const body = document.body;
 const darkModeToggle = document.getElementById('dark-mode-toggle');
 const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-// Check if user preference is set, if not check value of body class for light or dark else it means that colorscheme = auto
-if (localStorage.getItem("colorscheme")) {
-    setTheme(localStorage.getItem("colorscheme"));
-} else if (body.classList.contains('colorscheme-light') || body.classList.contains('colorscheme-dark')) {
-    setTheme(body.classList.contains("colorscheme-dark") ? "dark" : "light");
-} else {
-    setTheme(darkModeMediaQuery.matches ? "dark" : "light");
-}
+// The inline script in baseof already resolved the active scheme and set the
+// body class before first paint. Re-run setTheme so comment-embed iframes
+// (utterances/giscus) receive the current theme.
+setTheme(body.classList.contains("colorscheme-dark") ? "dark" : "light");
 
 if (darkModeToggle) {
     darkModeToggle.addEventListener('click', () => {
@@ -21,11 +17,6 @@ if (darkModeToggle) {
 
 darkModeMediaQuery.addListener((event) => {
     setTheme(event.matches ? "dark" : "light");
-});
-
-document.addEventListener("DOMContentLoaded", function () {
-    let node = document.querySelector('.preload-transitions');
-    node.classList.remove('preload-transitions');
 });
 
 function setTheme(theme) {
