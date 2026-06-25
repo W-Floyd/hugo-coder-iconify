@@ -17,7 +17,9 @@
     border-radius: 0.2rem;
     opacity: 0.5;
     cursor: pointer;
-    transition: all 0.25s ease-in;
+    transition:
+      color 0.05s ease-in,
+      opacity 0.05s ease-in;
 
     &:hover,
     &:focus {

@@ -15,7 +15,7 @@
             }}
             {{ partial "icons/icon" $context }}
           </span>
-          <span class="sr-only">{{ i18n "link_to_heading" | default "Link to heading" }}</span>
+          <span class="heading-link-text{{ if $.Site.Params.hideHeadingLinkText }} sr-only{{ end }}">{{ i18n "link_to_heading" | default "Link to heading" }}</span>
         </a>
       </h3>
       <nav>

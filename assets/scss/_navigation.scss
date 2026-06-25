@@ -12,6 +12,7 @@
   }
 
   a {
+    transition: color 0.05s ease-in;
 
     &:hover,
     &:focus {
@@ -131,6 +132,7 @@
     }
 
     i {
+      transition: color 0.05s ease-in;
 
       &:hover,
       &:focus {
@@ -142,6 +144,7 @@
   i {
     color: var(--fg-color);
     cursor: pointer;
+    transition: color 0.05s ease-in;
 
     &:hover,
     &:focus {
