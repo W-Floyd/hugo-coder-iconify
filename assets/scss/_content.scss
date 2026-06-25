@@ -79,8 +79,9 @@
       margin-bottom: 0.75em;
     }
 
-    // Give body images a sleek, modern container look.
-    .post-content img {
+    // Give body images a sleek, modern container look. Exclude the crossfade
+    // frames, which are full-bleed layers with their own sizing.
+    .post-content img:not(.scroll-crossfade__frame) {
       display: block;
       max-width: 100%;
       height: auto;

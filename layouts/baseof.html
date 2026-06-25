@@ -14,7 +14,7 @@
 {{ $csClass = "colorscheme-auto" }}
 {{ end }}
 
-<body class="{{ $csClass }}{{ if .Site.Params.rtl }} rtl{{ end }}">
+<body class="{{ $csClass }}{{ if .Site.Params.rtl }} rtl{{ end }}{{ with .Params.headerWallpaper }} has-header-wallpaper{{ end }}"{{ with .Params.headerWallpaper }} style="--header-wallpaper: url('{{ . | relURL }}');"{{ end }}>
   {{ if not .Site.Params.disableDefaultJsScripts }}
   {{/*
     Resolve the active color-scheme mode (auto | light | dark) before first

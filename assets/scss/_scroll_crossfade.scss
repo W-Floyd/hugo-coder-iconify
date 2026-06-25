@@ -1,0 +1,112 @@
+// Full-bleed scroll-through images (see the `scroll-crossfade` shortcode). A
+// sticky stage pins the images in the viewport while the tall section scrolls
+// past; the image layers are plain absolute children of the stage, and each
+// upper layer's opacity is driven from 0 to 1 across its slice of the scroll
+// (in coder.js), dissolving one image into the next. With a single image it is
+// simply a full-bleed, fixed-feeling image that fades in and out on scroll.
+
+// Eased (ease-in-out-sine) fade of the page background colour to transparent
+// along $dir. Built from color-mix so it fades the actual --bg-color rather
+// than fading to plain `transparent` (which would haze through grey), and the
+// eased stops avoid a hard line where the fade ends.
+@mixin bg-fade($dir) {
+  background: linear-gradient(
+    $dir,
+    color-mix(in srgb, var(--bg-color) 100%, transparent) 0%,
+    color-mix(in srgb, var(--bg-color) 98.7%, transparent) 8.1%,
+    color-mix(in srgb, var(--bg-color) 95.1%, transparent) 15.5%,
+    color-mix(in srgb, var(--bg-color) 89.6%, transparent) 22.5%,
+    color-mix(in srgb, var(--bg-color) 82.5%, transparent) 29%,
+    color-mix(in srgb, var(--bg-color) 74.1%, transparent) 35.3%,
+    color-mix(in srgb, var(--bg-color) 64.8%, transparent) 41.2%,
+    color-mix(in srgb, var(--bg-color) 55%, transparent) 47.1%,
+    color-mix(in srgb, var(--bg-color) 45%, transparent) 52.9%,
+    color-mix(in srgb, var(--bg-color) 35.2%, transparent) 58.8%,
+    color-mix(in srgb, var(--bg-color) 25.9%, transparent) 64.7%,
+    color-mix(in srgb, var(--bg-color) 17.5%, transparent) 71%,
+    color-mix(in srgb, var(--bg-color) 10.4%, transparent) 77.5%,
+    color-mix(in srgb, var(--bg-color) 4.9%, transparent) 84.5%,
+    color-mix(in srgb, var(--bg-color) 1.3%, transparent) 91.9%,
+    color-mix(in srgb, var(--bg-color) 0%, transparent) 100%
+  );
+}
+
+.content .scroll-crossfade {
+  position: relative;
+  // Break out of the centered content column to span the viewport.
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-top: 4rem;
+  margin-bottom: 4rem;
+  // Height (the scroll distance that drives the effect) is set inline by the
+  // shortcode: one viewport per image plus one extra. The sticky stage inside
+  // pins for most of it.
+
+  .scroll-crossfade__stage {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .scroll-crossfade__frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  // Soft fades at the section's top and bottom edges so it blends into the page
+  // background on the way in and out, instead of cutting on a hard line. They
+  // live at the section's extremes, so they're only on screen while entering or
+  // leaving — never during the crossfade itself.
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 25vh;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  &::before {
+    top: 0;
+    @include bg-fade(to bottom);
+  }
+
+  &::after {
+    bottom: 0;
+    @include bg-fade(to top);
+  }
+
+  // Caption sits in the vertical middle of the (taller-than-viewport) section
+  // so it lands on screen during a clean, fade-free moment. A dark, blurred
+  // pill keeps it legible over any part of any image.
+  figcaption {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    max-width: #{"min(90vw, 60rem)"};
+    margin: 0;
+    padding: 0.8rem 1.6rem;
+    text-align: center;
+    font-style: italic;
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(6px);
+    border-radius: 0.8rem;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+    z-index: 2;
+  }
+}
+
+// Upper layers start hidden and are revealed by the scroll handler in coder.js
+// (see the scroll-crossfade block there). With JS disabled they stay hidden, so
+// the first image shows rather than an abrupt last-image-only fallback.
+.scroll-crossfade__frame--fade {
+  opacity: 0;
+}

@@ -1,0 +1,94 @@
+// Fullscreen header wallpaper mode — opt in per page with the `headerWallpaper`
+// front-matter key. The image fills the first viewport; as you scroll, the page
+// content rises over it and the wallpaper fades into the default background
+// colour (--bg-color).
+//
+// The body carries the class and an inline `--header-wallpaper: url(...)` var
+// (set in baseof.html). The image is a fixed background so the content scrolls
+// over it; a gradient just above the content does the fade.
+.has-header-wallpaper {
+  background-image: var(--header-wallpaper);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+
+  // First screen is pure wallpaper; the navigation sits over it.
+  .content {
+    position: relative;
+    margin-top: 100vh;
+    background-color: var(--bg-color);
+  }
+
+  // Soft fade from the wallpaper into the page background, in the band of
+  // hero directly above the content.
+  .content::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: 20vh;
+    background: linear-gradient(to bottom, transparent, var(--bg-color));
+    pointer-events: none;
+  }
+
+  // Keep the footer on a solid background rather than over the wallpaper.
+  .footer {
+    background-color: var(--bg-color);
+  }
+
+  // The nav sits directly over the wallpaper, so force its text light and lay a
+  // dark gradient scrim behind it (fading down into the image) to guarantee
+  // legibility regardless of the wallpaper's brightness.
+  .navigation {
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 14rem;
+      // Eased (ease-in-out-sine) alpha falloff rather than a plain linear
+      // gradient — the slope flattens to zero at the bottom so the scrim melts
+      // into the image instead of ending on a visible hard line.
+      background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.55) 0%,
+        rgba(0, 0, 0, 0.543) 8.1%,
+        rgba(0, 0, 0, 0.523) 15.5%,
+        rgba(0, 0, 0, 0.493) 22.5%,
+        rgba(0, 0, 0, 0.454) 29%,
+        rgba(0, 0, 0, 0.408) 35.3%,
+        rgba(0, 0, 0, 0.356) 41.2%,
+        rgba(0, 0, 0, 0.303) 47.1%,
+        rgba(0, 0, 0, 0.248) 52.9%,
+        rgba(0, 0, 0, 0.194) 58.8%,
+        rgba(0, 0, 0, 0.142) 64.7%,
+        rgba(0, 0, 0, 0.096) 71%,
+        rgba(0, 0, 0, 0.057) 77.5%,
+        rgba(0, 0, 0, 0.027) 84.5%,
+        rgba(0, 0, 0, 0.007) 91.9%,
+        rgba(0, 0, 0, 0) 100%
+      );
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    a,
+    span,
+    i,
+    .navigation-title {
+      color: #fff;
+    }
+
+    a:hover,
+    a:focus,
+    i:hover,
+    i:focus {
+      color: var(--link-color);
+    }
+  }
+}
