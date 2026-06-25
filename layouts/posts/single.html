@@ -2,7 +2,11 @@
   {{ .Title }} · {{ .Site.Title }}
 {{ end }}
 {{ define "content" }}
-  <section class="container post">
+  {{/* Disable the decorative image styling when the page or, as a fallback,
+       the site config sets `plainImages`. A page value wins over the site. */}}
+  {{ $plainImages := .Site.Params.plainImages }}
+  {{ if isset .Params "plainimages" }}{{ $plainImages = .Params.plainImages }}{{ end }}
+  <section class="container post{{ if $plainImages }} plain-images{{ end }}">
     <article>
       <header>
         <div class="post-title">

@@ -46,6 +46,9 @@ hideColorSchemeToggle = false
 maxSeeAlsoItems = 5
 # Emit full post content in RSS feeds instead of just the summary
 rssFullContent = true
+# Disable the decorative body-image styling (rounded corners, shadow) site-wide.
+# Can be overridden per page with `plainImages` in front matter.
+plainImages = false
 # Custom CSS
 customCSS = []
 # Custom SCSS, file path is relative to Hugo's asset folder (default: {your project root}/assets)
