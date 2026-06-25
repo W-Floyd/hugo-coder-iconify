@@ -14,6 +14,9 @@
   caption  optional. Caption shown over the clean, fade-free middle.
   height   optional. Section height (the scroll distance). Default is one
            viewport per image plus one extra, e.g. 200vh for one image.
+  fit      optional. How each image fills the full-bleed stage: "cover"
+           (default, crops to fill) or "contain" (fits the whole image,
+           letterboxed against the page background).
 */ -}}
 {{- $imagesParam := .Get "images" | default (.Get 0) -}}
 {{- $srcs := slice -}}
@@ -26,10 +29,15 @@
   {{- range (split . ",") }}{{ $alts = $alts | append (trim . " ") }}{{ end -}}
 {{- end -}}
 {{- $caption := .Get "caption" -}}
+{{- $fit := .Get "fit" | default "cover" -}}
+{{- if not (in (slice "cover" "contain") $fit) -}}
+  {{- warnf "scroll-crossfade: invalid fit %q (use \"cover\" or \"contain\"); defaulting to \"cover\"" $fit -}}
+  {{- $fit = "cover" -}}
+{{- end -}}
 {{- $count := len $srcs -}}
 {{- /* One viewport per image, plus one extra for a clean hold at each end. */ -}}
 {{- $height := .Get "height" | default (printf "%dvh" (mul (add $count 1) 100)) -}}
-<div class="scroll-crossfade" style="--scroll-crossfade-height: {{ $height }};">
+<div class="scroll-crossfade{{ if eq $fit "contain" }} scroll-crossfade--contain{{ end }}" style="--scroll-crossfade-height: {{ $height }};">
   <div class="scroll-crossfade__stage">
     {{- range $i, $src := $srcs -}}
       {{- $url := "" -}}

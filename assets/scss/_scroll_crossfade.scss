@@ -59,6 +59,12 @@
     object-fit: cover;
   }
 
+  // `fit="contain"` shows the whole image (letterboxed against the page
+  // background) instead of cropping it to fill the stage.
+  &--contain .scroll-crossfade__frame {
+    object-fit: contain;
+  }
+
   // Soft fades at the section's top and bottom edges so it blends into the page
   // background on the way in and out, instead of cutting on a hard line. They
   // live at the section's extremes, so they're only on screen while entering or
