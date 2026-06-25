@@ -1,6 +1,6 @@
 baseURL = "http://www.example.com"
 title = "johndoe"
-languageCode = "en"
+locale = "en"
 defaultContentLanguage = "en"
 enableEmoji = true
 
@@ -190,7 +190,7 @@ rel = "alternate"
 type = "application/rss+xml"
 
 [languages.en]
-languageName = ":uk:"
+label = ":uk:"
 
 [[languages.en.menu.main]]
 name = "About"
@@ -213,7 +213,7 @@ weight = 5
 url = "contact/"
 
 [languages.pt-br]
-languageName = ":brazil:"
+label = ":brazil:"
 title = "João Ninguém"
 
 [languages.pt-br.params]
