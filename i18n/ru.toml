@@ -22,6 +22,11 @@ one = "Читать одну минуту"
 few = "Читать около {{ .Count }} минут"
 many = "Читать около {{ .Count }} минут"
 
+[word_count]
+one = "одно слово"
+few = "{{ .Count }} слова"
+many = "{{ .Count }} слов"
+
 [page_not_found]
 other = "Страница не найдена"
 

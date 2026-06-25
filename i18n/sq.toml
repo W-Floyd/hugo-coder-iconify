@@ -21,6 +21,10 @@ other = "postime"
 one = "një-minutë lexim"
 other = "{{ .Count }}-minute read"
 
+[word_count]
+one = "një fjalë"
+other = "{{ .Count }} fjalë"
+
 [page_not_found]
 other = "Nuk u gjet faqja"
 

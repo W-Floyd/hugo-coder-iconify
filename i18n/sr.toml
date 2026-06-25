@@ -21,6 +21,10 @@ other = "објаве"
 one = "Један минут читања"
 other = "{{ .Count }} минута читања"
 
+[word_count]
+one = "Једна реч"
+other = "{{ .Count }} речи"
+
 [page_not_found]
 other = "Страница није пронађена"
 

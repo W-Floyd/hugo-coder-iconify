@@ -20,6 +20,9 @@ other = "المنشورات"
 [reading_time]
 other = "تستغرق {{ .Count }} د"
 
+[word_count]
+other = "{{ .Count }} كلمة"
+
 [page_not_found]
 other = "الصفحة غير موجودة"
 

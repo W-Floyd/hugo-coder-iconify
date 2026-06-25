@@ -21,6 +21,10 @@ other = "artigos"
 one = "Um minuto de leitura"
 other = "{{ .Count }} minutos de leitura"
 
+[word_count]
+one = "Uma palavra"
+other = "{{ .Count }} palavras"
+
 [page_not_found]
 other = "Página Não Encontrada"
 

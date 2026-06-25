@@ -23,6 +23,12 @@ few = "Prečítate si do {{ .Count }} minút"
 many = "Prečítate si do {{ .Count }} minút"
 other = "Prečítate si do {{ .Count }} minút"
 
+[word_count]
+one = "Jedno slovo"
+few = "{{ .Count }} slová"
+many = "{{ .Count }} slov"
+other = "{{ .Count }} slova"
+
 [page_not_found]
 other = "Stránka nebola nájdená"
 

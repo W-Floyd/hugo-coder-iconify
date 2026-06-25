@@ -21,6 +21,10 @@ other = "सामग्री"
 one = "एक मिनेट पढाई"
 other = "{{ .Count }} मिनेट पढाई"
 
+[word_count]
+one = "एक शब्द"
+other = "{{ .Count }} शब्द"
+
 [page_not_found]
 other = "पृष्ठ भेटिएन।"
 

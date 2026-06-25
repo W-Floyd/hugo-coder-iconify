@@ -21,6 +21,10 @@ other = "記事"
 one = "1分で読めます"
 other = "{{ .Count }}分で読めます"
 
+[word_count]
+one = "1 単語"
+other = "{{ .Count }} 単語"
+
 [page_not_found]
 other = "ページが見つかりません"
 

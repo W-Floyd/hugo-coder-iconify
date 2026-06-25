@@ -21,6 +21,10 @@ other = "פוסטים"
 one = "דקה אחת לקרוא"
 other = "דקות לקרוא {{ .Count }}"
 
+[word_count]
+one = "מילה אחת"
+other = "{{ .Count }} מילים"
+
 [page_not_found]
 other = "דף האינטרנט שביקשת לא נמצא"
 

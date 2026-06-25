@@ -21,6 +21,10 @@ other = "اِشاعَتی"
 one = "اسے پڑھنے میں ایک منٹ لگے گا"
 other = "اسے پڑھنے میں {{ Count }} منٹ لگتا ہے۔"
 
+[word_count]
+one = "ایک لفظ"
+other = "{{ .Count }} الفاظ"
+
 [page_not_found]
 other = "صفحہ نہیں ملا"
 

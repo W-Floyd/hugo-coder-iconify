@@ -21,6 +21,10 @@ other = "articole"
 one = "Un minut de lectură"
 other = "{{ .Count }} {{ if lt .Count 20 }}minute{{ else }}de minute{{ end }} de lectură"
 
+[word_count]
+one = "Un cuvânt"
+other = "{{ .Count }} {{ if lt .Count 20 }}cuvinte{{ else }}de cuvinte{{ end }}"
+
 [page_not_found]
 other = "Pagină Pierdută"
 

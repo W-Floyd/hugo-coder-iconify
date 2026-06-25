@@ -21,6 +21,10 @@ other = "文章"
 one = "閱讀時間 1 分鐘"
 other = "閱讀時間 {{ .Count }} 分鐘"
 
+[word_count]
+one = "1 字"
+other = "{{ .Count }} 字"
+
 [page_not_found]
 other = "找不到頁面"
 

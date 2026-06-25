@@ -21,6 +21,10 @@ other = "Inlägg"
 one = "Ein minut lästid"
 other = "{{ .Count }} minuter lästid"
 
+[word_count]
+one = "Ett ord"
+other = "{{ .Count }} ord"
+
 [page_not_found]
 other = "Sida hittades inte"
 

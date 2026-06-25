@@ -21,6 +21,10 @@ other = "berichten"
 one = "Eén minuut leestijd"
 other = "{{ .Count }} minuten leestijd"
 
+[word_count]
+one = "Eén woord"
+other = "{{ .Count }} woorden"
+
 [page_not_found]
 other = "Pagina niet gevonden"
 

@@ -21,6 +21,10 @@ other = "bejegyzések"
 one = "Egyperces olvasnivaló"
 other = "{{ .Count }} perces olvasnivaló"
 
+[word_count]
+one = "Egy szó"
+other = "{{ .Count }} szó"
+
 [page_not_found]
 other = "Az oldal nem található"
 

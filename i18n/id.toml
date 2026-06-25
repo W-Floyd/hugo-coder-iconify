@@ -21,6 +21,10 @@ other = "artikel"
 one = "bacaan satu menit"
 other = "bacaan {{ .Count }} menit"
 
+[word_count]
+one = "satu kata"
+other = "{{ .Count }} kata"
+
 [page_not_found]
 other = "Halaman tidak ditemukan"
 

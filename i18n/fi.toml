@@ -21,6 +21,10 @@ other = "Artikkelit"
 one = "Yksi lukuminuutti"
 other = "{{ .Count }} lukuminuuttia"
 
+[word_count]
+one = "Yksi sana"
+other = "{{ .Count }} sanaa"
+
 [page_not_found]
 other = "Sivua ei löydetty"
 

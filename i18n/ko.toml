@@ -21,6 +21,10 @@ other = "포스트"
 one = "읽는데 1분"
 other = "읽는데 {{ .Count }}분"
 
+[word_count]
+one = "1 단어"
+other = "{{ .Count }} 단어"
+
 [page_not_found]
 other = "페이지를 찾을 수 없습니다."
 

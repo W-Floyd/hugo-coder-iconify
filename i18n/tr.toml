@@ -22,6 +22,10 @@ other = "Gönderiler"
 one = "Bir dakikalık okuma"
 other = "{{ .Count }} dakikalık okuma"
 
+[word_count]
+one = "Bir kelime"
+other = "{{ .Count }} kelime"
+
 [page_not_found]
 other = "Sayfa Bulunamadı"
 

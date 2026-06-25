@@ -20,6 +20,9 @@ other = "posts"
 [reading_time]
 other = "Délka čtení: {{ .Count }}"
 
+[word_count]
+other = "{{ .Count }} slov"
+
 [page_not_found]
 other = "Stránka nenalezena"
 
