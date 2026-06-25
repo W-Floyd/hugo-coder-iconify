@@ -29,7 +29,7 @@
 {{- $count := len $srcs -}}
 {{- /* One viewport per image, plus one extra for a clean hold at each end. */ -}}
 {{- $height := .Get "height" | default (printf "%dvh" (mul (add $count 1) 100)) -}}
-<div class="scroll-crossfade" style="height: {{ $height }};">
+<div class="scroll-crossfade" style="--scroll-crossfade-height: {{ $height }};">
   <div class="scroll-crossfade__stage">
     {{- range $i, $src := $srcs -}}
       {{- $url := "" -}}

@@ -38,9 +38,11 @@
   margin-left: calc(50% - 50vw);
   margin-top: 4rem;
   margin-bottom: 4rem;
-  // Height (the scroll distance that drives the effect) is set inline by the
-  // shortcode: one viewport per image plus one extra. The sticky stage inside
-  // pins for most of it.
+  // Height (the scroll distance that drives the effect) is one viewport per
+  // image plus one extra; the per-instance value is passed as a custom property
+  // by the shortcode. Kept in CSS (not an inline height) so feeds/readers with
+  // no stylesheet just flow the images naturally instead of a tall empty box.
+  height: var(--scroll-crossfade-height, 200vh);
 
   .scroll-crossfade__stage {
     position: sticky;
