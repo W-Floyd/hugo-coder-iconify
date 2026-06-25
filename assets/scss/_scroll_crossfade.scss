@@ -60,9 +60,13 @@
   }
 
   // `fit="contain"` shows the whole image (letterboxed against the page
-  // background) instead of cropping it to fill the stage.
+  // background) instead of cropping it to fill the stage. The opaque
+  // background fills each frame's letterbox margins so an opaque upper frame
+  // fully hides the frames beneath it — without it the transparent margins
+  // let every layer show through at once instead of crossfading.
   &--contain .scroll-crossfade__frame {
     object-fit: contain;
+    background-color: var(--bg-color);
   }
 
   // Soft fades at the section's top and bottom edges so it blends into the page
