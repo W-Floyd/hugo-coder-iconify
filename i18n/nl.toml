@@ -59,6 +59,3 @@ other = "waarschuwing"
 
 [error]
 other = "fout"
-
-[link_to_heading]
-other = "Link to heading"

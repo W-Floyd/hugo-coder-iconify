@@ -60,6 +60,3 @@ other = "предупреждение"
 
 [error]
 other = "ошибка"
-
-[link_to_heading]
-other = "Ссылка на заголовок"

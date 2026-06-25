@@ -4,3 +4,4 @@ exampleSite/public/
 exampleSite/resources/
 *.lock
 public
+*.DS_Store

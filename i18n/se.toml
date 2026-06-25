@@ -59,6 +59,3 @@ other = "Varning"
 
 [error]
 other = "Fel"
-
-[link_to_heading]
-other = "Link to heading"

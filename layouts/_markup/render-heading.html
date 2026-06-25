@@ -1,13 +1,3 @@
 <h{{ .Level }} id="{{ .Anchor | safeURL }}">
-  {{ .Text | safeHTML }}
-  <a class="heading-link" href="#{{ .Anchor | safeURL }}">
-    <span aria-hidden="true" title="{{ i18n "link_to_heading" | default "Link to heading" }}">
-      {{ $context := dict
-        "vendor" "mdi"
-        "name" "link"
-      }}
-      {{ partial "icons/icon" $context }}
-    </span>
-    <span class="heading-link-text{{ if site.Params.hideHeadingLinkText }} sr-only{{ end }}">{{ i18n "link_to_heading" | default "Link to heading" }}</span>
-  </a>
+  <a class="heading-link" href="#{{ .Anchor | safeURL }}">{{ .Text | safeHTML }}</a>
 </h{{ .Level }}>

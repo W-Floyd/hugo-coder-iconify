@@ -59,6 +59,3 @@ other = "aviso"
 
 [error]
 other = "erro"
-
-[link_to_heading]
-other = "Link para o cabeçalho"

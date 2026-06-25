@@ -51,21 +51,28 @@ h6 {
   color: var(--alt-fg-color);
   margin: 4rem 0 2.5rem 0;
 
-  &:hover .heading-link {
-    visibility: visible;
+  // The whole heading is a permalink to itself. It looks like a normal heading;
+  // a "#" hint fades in to its left on hover (positioned in the margin so the
+  // heading text doesn't shift).
+  &:hover .heading-link::before {
     opacity: 1;
   }
 
   .heading-link {
-    color: var(--link-color);
+    position: relative;
+    color: inherit;
     font-weight: inherit;
     text-decoration: none;
-    font-size: 80%;
-    visibility: hidden;
-    opacity: 0;
-    transition:
-      opacity 0.05s ease-in,
-      visibility 0.05s ease-in;
+
+    &::before {
+      content: "#";
+      position: absolute;
+      right: 100%;
+      padding-right: 0.3em;
+      color: var(--link-color);
+      opacity: 0;
+      transition: opacity 0.05s ease-in;
+    }
   }
 
   .title-link {

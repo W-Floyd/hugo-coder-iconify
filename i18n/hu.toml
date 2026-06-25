@@ -60,8 +60,5 @@ other = "figyelmeztetés"
 [error]
 other = "hiba"
 
-[link_to_heading]
-other = "Link a címsorhoz"
-
 [entry_toc]
 other = "Tartalomjegyzék"

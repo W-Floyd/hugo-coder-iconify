@@ -59,6 +59,3 @@ other = "upozorenje"
 
 [error]
 other = "greška"
-
-[link_to_heading]
-other = "Link do zaglavlja"

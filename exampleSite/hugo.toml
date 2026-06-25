@@ -44,10 +44,8 @@ colorScheme = "auto"
 hideColorSchemeToggle = false
 # Series see also post count
 maxSeeAlsoItems = 5
-# Hide the "Link to heading" text next to heading-link icons (keeps the icon)
-hideHeadingLinkText = false
 # Emit full post content in RSS feeds instead of just the summary
-rssFullContent = false
+rssFullContent = true
 # Custom CSS
 customCSS = []
 # Custom SCSS, file path is relative to Hugo's asset folder (default: {your project root}/assets)

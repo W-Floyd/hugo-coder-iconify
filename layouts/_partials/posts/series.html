@@ -6,17 +6,7 @@
     {{ $series := index $.Site.Taxonomies.series $name }}
     {{ if gt (len $series.Pages) 1 }}
       <h3 id="{{ i18n "see_also" | default "See also in" | anchorize }}-{{ anchorize . | safeURL }}">
-        {{ i18n "see_also" | default "See also in" }} {{ . }}
-        <a class="heading-link" href="#{{ i18n "see_also" | default "See also in" | anchorize }}-{{ anchorize . | safeURL }}">
-          <span title="{{ i18n "link_to_heading" | default "Link to heading" }}">
-            {{ $context := dict
-              "vendor" "mdi"
-              "name" "link"
-            }}
-            {{ partial "icons/icon" $context }}
-          </span>
-          <span class="heading-link-text{{ if $.Site.Params.hideHeadingLinkText }} sr-only{{ end }}">{{ i18n "link_to_heading" | default "Link to heading" }}</span>
-        </a>
+        <a class="heading-link" href="#{{ i18n "see_also" | default "See also in" | anchorize }}-{{ anchorize . | safeURL }}">{{ i18n "see_also" | default "See also in" }} {{ . }}</a>
       </h3>
       <nav>
         <ul>

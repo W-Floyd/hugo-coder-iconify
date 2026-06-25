@@ -60,6 +60,3 @@ other = "uyarı"
 
 [error]
 other = "hata"
-
-[link_to_heading]
-other = "Başlık Linki"
