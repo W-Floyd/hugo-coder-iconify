@@ -49,6 +49,11 @@
     top: 0;
     height: 100vh;
     overflow: hidden;
+    // Place the caption via grid alignment (the frames are absolutely
+    // positioned, so they stay out of grid flow). Default: centered — the
+    // `captionPosition` shortcode param overrides this per the modifiers below.
+    display: grid;
+    place-items: center;
   }
 
   .scroll-crossfade__frame {
@@ -94,16 +99,13 @@
     @include bg-fade(to top);
   }
 
-  // Caption sits in the vertical middle of the (taller-than-viewport) section
-  // so it lands on screen during a clean, fade-free moment. A dark, blurred
-  // pill keeps it legible over any part of any image.
+  // Caption is a grid item placed by the stage's `place-items` (centered by
+  // default — landing on screen during a clean, fade-free moment). A dark,
+  // blurred pill keeps it legible over any part of any image. The margin insets
+  // it from the stage edges for the non-centered positions.
   figcaption {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
     max-width: #{"min(90vw, 60rem)"};
-    margin: 0;
+    margin: 2rem;
     padding: 0.8rem 1.6rem;
     text-align: center;
     font-style: italic;
@@ -114,6 +116,18 @@
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
     z-index: 2;
   }
+
+  // Caption placement (the `captionPosition` shortcode param). `place-items` is
+  // <align (block/vertical)> <justify (inline/horizontal)>: start = top/left,
+  // end = bottom/right. Center is the default on the stage above.
+  &--cap-top-left .scroll-crossfade__stage { place-items: start start; }
+  &--cap-top .scroll-crossfade__stage { place-items: start center; }
+  &--cap-top-right .scroll-crossfade__stage { place-items: start end; }
+  &--cap-left .scroll-crossfade__stage { place-items: center start; }
+  &--cap-right .scroll-crossfade__stage { place-items: center end; }
+  &--cap-bottom-left .scroll-crossfade__stage { place-items: end start; }
+  &--cap-bottom .scroll-crossfade__stage { place-items: end center; }
+  &--cap-bottom-right .scroll-crossfade__stage { place-items: end end; }
 }
 
 // Upper layers start hidden and are revealed by the scroll handler in coder.js
