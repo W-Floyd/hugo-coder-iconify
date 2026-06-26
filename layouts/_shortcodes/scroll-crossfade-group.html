@@ -1,0 +1,37 @@
+{{- /*
+  Full-bleed scroll-through image sequence. Wraps one or more `scroll-crossfade`
+  child shortcodes; with one child it's a fixed-feeling, full-bleed image that
+  fades in and out as you scroll, and with two or more the images dissolve
+  directly into one another — no page background between them. A sticky stage
+  pins the images; the crossfade opacity is driven in coder.js.
+
+  Each child carries its own image, caption, and caption position, so a caption
+  can contain commas (or any text) freely — it's a per-child attribute, not an
+  item in a shared list.
+
+  Usage:
+    {{< scroll-crossfade-group >}}
+    {{< scroll-crossfade image="images/a.jpg" caption="On the tarmac, 1999" captionPosition="bottom-right" >}}
+    {{< scroll-crossfade image="images/b.jpg" caption="Cabin, dawn" >}}
+    {{< /scroll-crossfade-group >}}
+
+  height  optional. Section height (the scroll distance). Default is one viewport
+          per image plus one extra, e.g. 200vh for one image.
+*/ -}}
+{{- $inner := .Inner -}}
+{{- /* Each child emits one `data-crossfade-frame`; count them for the height. */ -}}
+{{- $count := strings.Count "data-crossfade-frame" $inner -}}
+{{- if lt $count 1 -}}
+  {{- warnf "scroll-crossfade-group: no scroll-crossfade children found" -}}
+{{- end -}}
+{{- /* One viewport per image, plus one extra for a clean hold at each end. */ -}}
+{{- $height := .Get "height" | default (printf "%dvh" (mul (add $count 1) 100)) -}}
+{{- /* The first frame is the always-visible base, so load it eagerly (good for
+       LCP); the rest stay lazy. Replace only the first occurrence. */ -}}
+{{- $inner = strings.Replace (string $inner) "loading=\"lazy\"" "loading=\"eager\"" 1 | safeHTML -}}
+<div class="scroll-crossfade" style="--scroll-crossfade-height: {{ $height }};">
+  <div class="scroll-crossfade__stage">
+    {{- $inner -}}
+  </div>
+</div>
+{{- /* The crossfade scroll handler lives in coder.js (bundled site-wide). */ -}}

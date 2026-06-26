@@ -49,14 +49,34 @@
     top: 0;
     height: 100vh;
     overflow: hidden;
-    // Place the caption via grid alignment (the frames are absolutely
-    // positioned, so they stay out of grid flow). Default: centered — the
-    // `captionPosition` shortcode param overrides this per the modifiers below.
-    display: grid;
-    place-items: center;
   }
 
+  // Each frame is a full-bleed layer stacked on the stage; the image fills it
+  // and the caption is a grid item placed within it (the image is absolutely
+  // positioned, so it stays out of grid flow). Default caption placement is
+  // centered — the per-frame `captionPosition` param overrides via the
+  // modifiers below.
   .scroll-crossfade__frame {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    display: grid;
+    place-items: center;
+    // Opaque background so each frame fully resets what's beneath it: an
+    // opaque upper frame hides the frames below instead of letting them (and
+    // their captions) bleed through any area the image doesn't paint —
+    // letterbox margins under `fit="contain"`, or a transparent image.
+    background-color: var(--bg-color);
+    // Isolate each frame into its own stacking context so its caption's
+    // z-index stays scoped to the frame. Without this, the base frame (which
+    // sits at opacity:1, forming no stacking context) lets its caption escape
+    // and paint above every later frame's image. With it, frames paint in DOM
+    // order — each caption rides with, and is covered by, its own image.
+    isolation: isolate;
+  }
+
+  // Default: the image fills the full-bleed frame, cropping to cover it.
+  .scroll-crossfade__img {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -64,14 +84,10 @@
     object-fit: cover;
   }
 
-  // `fit="contain"` shows the whole image (letterboxed against the page
-  // background) instead of cropping it to fill the stage. The opaque
-  // background fills each frame's letterbox margins so an opaque upper frame
-  // fully hides the frames beneath it — without it the transparent margins
-  // let every layer show through at once instead of crossfading.
-  &--contain .scroll-crossfade__frame {
+  // `fit="contain"` instead shows the whole image, letterboxed against the
+  // frame's (opaque) background.
+  .scroll-crossfade__frame--contain .scroll-crossfade__img {
     object-fit: contain;
-    background-color: var(--bg-color);
   }
 
   // Soft fades at the section's top and bottom edges so it blends into the page
@@ -117,24 +133,35 @@
     z-index: 2;
   }
 
-  // Caption placement (the `captionPosition` shortcode param). `place-items` is
-  // <align (block/vertical)> <justify (inline/horizontal)>: start = top/left,
-  // end = bottom/right. Center is the default on the stage above.
-  &--cap-top-left .scroll-crossfade__stage { place-items: start start; }
-  &--cap-top .scroll-crossfade__stage { place-items: start center; }
-  &--cap-top-right .scroll-crossfade__stage { place-items: start end; }
-  &--cap-left .scroll-crossfade__stage { place-items: center start; }
-  &--cap-right .scroll-crossfade__stage { place-items: center end; }
-  &--cap-bottom-left .scroll-crossfade__stage { place-items: end start; }
-  &--cap-bottom .scroll-crossfade__stage { place-items: end center; }
-  &--cap-bottom-right .scroll-crossfade__stage { place-items: end end; }
+  // Caption text size (the `captionSize` child param). Medium is the default
+  // (the inherited body size) on the figcaption above; small/large scale
+  // relative to it with `em` so they track the theme's base font size.
+  .scroll-crossfade__caption--small { font-size: 0.8em; }
+  .scroll-crossfade__caption--large { font-size: 1.6em; }
+
+  // Per-frame caption placement (the `captionPosition` child param).
+  // `place-items` is <align (block/vertical)> <justify (inline/horizontal)>:
+  // start = top/left, end = bottom/right. Center is the default on the frame
+  // above.
+  .scroll-crossfade__frame--cap-top-left { place-items: start start; }
+  .scroll-crossfade__frame--cap-top { place-items: start center; }
+  .scroll-crossfade__frame--cap-top-right { place-items: start end; }
+  .scroll-crossfade__frame--cap-left { place-items: center start; }
+  .scroll-crossfade__frame--cap-right { place-items: center end; }
+  .scroll-crossfade__frame--cap-bottom-left { place-items: end start; }
+  .scroll-crossfade__frame--cap-bottom { place-items: end center; }
+  .scroll-crossfade__frame--cap-bottom-right { place-items: end end; }
 }
 
-// Upper layers start hidden and are revealed by the scroll handler in coder.js
-// (see the scroll-crossfade block there). With JS disabled they stay hidden, so
-// the first image shows rather than an abrupt last-image-only fallback.
-.scroll-crossfade__frame--fade {
+// Layers start hidden and are revealed by the scroll handler in coder.js (see
+// the scroll-crossfade block there). The first frame stays visible as the
+// always-opaque base, so with JS disabled the first image shows rather than an
+// abrupt last-image-only fallback.
+.scroll-crossfade__frame {
   opacity: 0;
+}
+.scroll-crossfade__frame:first-child {
+  opacity: 1;
 }
 
 // Opted-out view (the floating toggle in coder.js, or prefers-reduced-motion by
@@ -153,14 +180,21 @@ body.immersive-collapsed .content .scroll-crossfade {
     overflow: visible;
   }
 
-  // Undo the immersive layer layout; match the regular body-image box below.
+  // Undo the immersive layer layout; each frame becomes a normal flow block.
   .scroll-crossfade__frame {
+    position: static;
+    display: block;
+    margin: 2rem auto;
+    opacity: 1;
+    place-items: initial;
+  }
+
+  // Match the regular body-image box below.
+  .scroll-crossfade__img {
     position: static;
     display: block;
     max-width: 100%;
     height: auto;
-    margin: 2rem auto;
-    opacity: 1;
     object-fit: initial;
     background-color: transparent;
   }
@@ -177,11 +211,18 @@ body.immersive-collapsed .content .scroll-crossfade {
     margin: 1rem auto 0;
     max-width: 100%;
   }
+
+  // `captionSize` is an immersive-view treatment only; in the collapsed stack
+  // captions read as plain body captions, so drop the size modifiers.
+  .scroll-crossfade__caption--small,
+  .scroll-crossfade__caption--large {
+    font-size: inherit;
+  }
 }
 
 // Give collapsed frames the same sleek body-image look as regular images,
 // honoring the page's `plainImages` opt-out exactly as `_content.scss` does.
-body.immersive-collapsed .post:not(.plain-images) .scroll-crossfade__frame {
+body.immersive-collapsed .post:not(.plain-images) .scroll-crossfade__img {
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }

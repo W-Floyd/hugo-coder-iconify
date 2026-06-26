@@ -82,7 +82,7 @@
     // Give body images a sleek, modern container look. Exclude the crossfade
     // frames (full-bleed layers with their own sizing), and skip it entirely
     // when the page opts out via `plainImages` in front matter.
-    &:not(.plain-images) .post-content img:not(.scroll-crossfade__frame) {
+    &:not(.plain-images) .post-content img:not(.scroll-crossfade__img) {
       display: block;
       max-width: 100%;
       height: auto;

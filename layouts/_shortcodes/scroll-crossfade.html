@@ -1,37 +1,31 @@
 {{- /*
-  Full-bleed scroll-through image(s). With one image it's a fixed-feeling,
-  full-bleed image that fades in and out as you scroll. With two or more, the
-  images dissolve directly into one another — no page background between them.
-  A sticky stage pins the images; the crossfade opacity is driven in coder.js.
+  One image layer in a `scroll-crossfade-group`. Renders a single full-bleed
+  frame plus its own caption; the group pins the stage and coder.js fades each
+  frame (and its caption with it) across its slice of the scroll. Must be nested
+  inside a `scroll-crossfade-group` — used on its own it does nothing useful.
 
-  Usage:
-    {{< scroll-crossfade images="images/a.jpg" caption="A caption" >}}
-    {{< scroll-crossfade images="images/a.jpg, images/b.jpg, images/c.jpg" >}}
-
-  images   required. Comma-separated list of one or more image sources
-           (co-located page resources, site asset paths, or absolute URLs).
-  alts     optional. Comma-separated alt texts, parallel to images.
-  caption  optional. Caption shown over the image (centered by default).
+  image   required. Image source (a co-located page resource, a site asset path,
+          or an absolute URL).
+  alt     optional. Alt text for the image.
+  caption optional. Caption shown over this image (centered by default). May
+          contain commas or any other text.
   captionPosition
-           optional. Where the caption sits on the stage. One of: top-left,
-           top, top-right, left, center (default), right, bottom-left, bottom,
-           bottom-right.
-  height   optional. Section height (the scroll distance). Default is one
-           viewport per image plus one extra, e.g. 200vh for one image.
-  fit      optional. How each image fills the full-bleed stage: "cover"
-           (default, crops to fill) or "contain" (fits the whole image,
-           letterboxed against the page background).
+          optional. Where the caption sits. One of: top-left, top, top-right,
+          left, center (default), right, bottom-left, bottom, bottom-right.
+  captionSize
+          optional. Caption text size. One of: small, medium (default), large.
+  fit     optional. How the image fills the full-bleed stage: "fill" (default,
+          fills the frame, cropping overflow) or "contain" (fits the whole
+          image, letterboxed against the page background).
+  objectPosition
+          optional. Focal point kept in view when "fill" crops the image (a CSS
+          object-position value, e.g. "top", "left", "50% 20%"). Default center.
 */ -}}
-{{- $imagesParam := .Get "images" | default (.Get 0) -}}
-{{- $srcs := slice -}}
-{{- range (split $imagesParam ",") -}}
-  {{- $s := trim . " " -}}
-  {{- with $s }}{{ $srcs = $srcs | append $s }}{{ end -}}
+{{- if not .Parent -}}
+  {{- warnf "scroll-crossfade: must be nested inside a scroll-crossfade-group" -}}
 {{- end -}}
-{{- $alts := slice -}}
-{{- with .Get "alts" -}}
-  {{- range (split . ",") }}{{ $alts = $alts | append (trim . " ") }}{{ end -}}
-{{- end -}}
+{{- $src := .Get "image" | default (.Get 0) -}}
+{{- $alt := .Get "alt" | default "" -}}
 {{- $caption := .Get "caption" -}}
 {{- $captionPositions := slice "top-left" "top" "top-right" "left" "center" "right" "bottom-left" "bottom" "bottom-right" -}}
 {{- $captionPosition := .Get "captionPosition" | default "center" -}}
@@ -39,29 +33,26 @@
   {{- warnf "scroll-crossfade: invalid captionPosition %q (use one of %s); defaulting to \"center\"" $captionPosition (delimit $captionPositions ", ") -}}
   {{- $captionPosition = "center" -}}
 {{- end -}}
-{{- $fit := .Get "fit" | default "cover" -}}
-{{- if not (in (slice "cover" "contain") $fit) -}}
-  {{- warnf "scroll-crossfade: invalid fit %q (use \"cover\" or \"contain\"); defaulting to \"cover\"" $fit -}}
-  {{- $fit = "cover" -}}
+{{- $captionSizes := slice "small" "medium" "large" -}}
+{{- $captionSize := .Get "captionSize" | default "medium" -}}
+{{- if not (in $captionSizes $captionSize) -}}
+  {{- warnf "scroll-crossfade: invalid captionSize %q (use one of %s); defaulting to \"medium\"" $captionSize (delimit $captionSizes ", ") -}}
+  {{- $captionSize = "medium" -}}
 {{- end -}}
-{{- $count := len $srcs -}}
-{{- /* One viewport per image, plus one extra for a clean hold at each end. */ -}}
-{{- $height := .Get "height" | default (printf "%dvh" (mul (add $count 1) 100)) -}}
-<div class="scroll-crossfade{{ if eq $fit "contain" }} scroll-crossfade--contain{{ end }}{{ if and $caption (ne $captionPosition "center") }} scroll-crossfade--cap-{{ $captionPosition }}{{ end }}" style="--scroll-crossfade-height: {{ $height }};">
-  <div class="scroll-crossfade__stage">
-    {{- range $i, $src := $srcs -}}
-      {{- $url := "" -}}
-      {{- with $.Page.Resources.GetMatch $src -}}
-        {{- $url = .RelPermalink -}}
-      {{- else -}}
-        {{- $parsed := urls.Parse $src -}}
-        {{- $url = cond (ne $parsed.Scheme "") $src ($src | relURL) -}}
-      {{- end -}}
-      {{- $alt := "" -}}
-      {{- if gt (len $alts) $i }}{{ $alt = index $alts $i }}{{ end -}}
-      <img class="scroll-crossfade__frame{{ if gt $i 0 }} scroll-crossfade__frame--fade{{ end }}" src="{{ $url }}" alt="{{ $alt }}" loading="lazy" />
-    {{- end -}}
-    {{- with $caption }}<figcaption>{{ . | $.Page.RenderString }}</figcaption>{{ end -}}
-  </div>
-</div>
-{{- /* The crossfade scroll handler lives in coder.js (bundled site-wide). */ -}}
+{{- $fit := .Get "fit" | default "fill" -}}
+{{- if not (in (slice "fill" "contain") $fit) -}}
+  {{- warnf "scroll-crossfade: invalid fit %q (use \"fill\" or \"contain\"); defaulting to \"fill\"" $fit -}}
+  {{- $fit = "fill" -}}
+{{- end -}}
+{{- $objectPosition := .Get "objectPosition" -}}
+{{- $url := "" -}}
+{{- with $.Page.Resources.GetMatch $src -}}
+  {{- $url = .RelPermalink -}}
+{{- else -}}
+  {{- $parsed := urls.Parse $src -}}
+  {{- $url = cond (ne $parsed.Scheme "") $src ($src | relURL) -}}
+{{- end -}}
+<figure data-crossfade-frame class="scroll-crossfade__frame{{ if eq $fit "contain" }} scroll-crossfade__frame--contain{{ end }}{{ if and $caption (ne $captionPosition "center") }} scroll-crossfade__frame--cap-{{ $captionPosition }}{{ end }}">
+  <img class="scroll-crossfade__img" src="{{ $url }}" alt="{{ $alt }}" loading="lazy"{{ with $objectPosition }} style="object-position: {{ . | safeCSS }};"{{ end }} />
+  {{- with $caption }}<figcaption class="scroll-crossfade__caption{{ if ne $captionSize "medium" }} scroll-crossfade__caption--{{ $captionSize }}{{ end }}">{{ . | $.Page.RenderString }}</figcaption>{{ end -}}
+</figure>
