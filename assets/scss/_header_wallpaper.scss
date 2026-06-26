@@ -6,17 +6,42 @@
 // The body carries the class and an inline `--header-wallpaper: url(...)` var
 // (set in baseof.html). The image is a fixed background so the content scrolls
 // over it; a gradient just above the content does the fade.
-.has-header-wallpaper {
-  background-image: var(--header-wallpaper);
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+//
+// `:not(.immersive-collapsed)` lets the floating opt-out toggle (coder.js) drop
+// the whole fullscreen treatment back to a normal page — see _float.scss and
+// the immersive block in coder.js.
+.has-header-wallpaper:not(.immersive-collapsed) {
+  // The wallpaper is a real fixed, full-viewport layer rather than
+  // `background-attachment: fixed` on the body. A fixed *background* is not
+  // painted into the elastic overscroll region (and is clipped to the body box
+  // as it bounces), so rubber-banding past the top exposes a flat band and the
+  // fade appears to cut off. A fixed *element* keeps covering the viewport
+  // through the bounce. It sits at z-index -1: above the body's background
+  // colour, below all page content.
+  &::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background-image: var(--header-wallpaper);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    pointer-events: none;
+  }
+  // Belt-and-suspenders for browsers that honour it (propagates to the
+  // viewport); harmless where the fixed layer alone already covers the bounce.
+  overscroll-behavior-y: none;
 
-  // First screen is pure wallpaper; the navigation sits over it.
+  // First screen is pure wallpaper; the navigation sits over it. Everything
+  // below the hero must be an unbroken opaque block down to the document bottom,
+  // or the fixed wallpaper shows through any transparent margin. So the bottom
+  // spacing is padding (painted with the background colour), not margin.
   .content {
     position: relative;
     margin-top: 100vh;
+    margin-bottom: 0;
+    padding-bottom: 3.2rem;
     background-color: var(--bg-color);
   }
 
@@ -33,9 +58,13 @@
     pointer-events: none;
   }
 
-  // Keep the footer on a solid background rather than over the wallpaper.
+  // Keep the footer on a solid background rather than over the wallpaper, and
+  // turn its bottom margin into padding so there's no transparent strip beneath
+  // it for the wallpaper to show through.
   .footer {
     background-color: var(--bg-color);
+    margin-bottom: 0;
+    padding-bottom: 1rem;
   }
 
   // The nav sits directly over the wallpaper, so force its text light and lay a
@@ -90,5 +119,33 @@
     i:focus {
       color: var(--link-color);
     }
+  }
+}
+
+// The collapsed (opted-out) banner: hidden while immersive; in the collapsed
+// state it shows the wallpaper as a normal full-bleed cover image at the top of
+// the page instead of the fixed fullscreen hero. See the immersive toggle in
+// coder.js / _float.scss.
+.header-cover {
+  display: none;
+}
+
+body.immersive-collapsed.has-header-wallpaper {
+  // Stack the cover banner above the centered content column (which keeps its
+  // own `margin: auto` centering on the flex cross axis).
+  .content {
+    flex-direction: column;
+  }
+
+  .header-cover {
+    display: block;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-bottom: 2rem;
+    height: clamp(18rem, 60vh, 60rem);
+    background-image: var(--header-wallpaper);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
   }
 }

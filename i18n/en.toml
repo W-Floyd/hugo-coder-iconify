@@ -69,3 +69,6 @@ other = "Table of Contents"
 
 [color_scheme_toggle]
 other = "Toggle color scheme"
+
+[immersive_toggle]
+other = "Toggle immersive view"

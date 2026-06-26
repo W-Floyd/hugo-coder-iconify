@@ -42,6 +42,14 @@
     {{ partial "header.html" . }}
 
     <div class="content">
+      {{/*
+        When a header wallpaper is opted out of (body.immersive-collapsed, via
+        the float toggle), this decorative banner shows the same image as a
+        normal in-flow cover image at the top of the page. Hidden by default;
+        revealed by CSS only in the collapsed state. Reuses the inherited
+        `--header-wallpaper` custom property set on <body>.
+      */}}
+      {{ with .Params.headerWallpaper }}<div class="header-cover" aria-hidden="true"></div>{{ end }}
       {{ block "content" . }}{{ end }}
     </div>
 

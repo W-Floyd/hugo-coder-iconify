@@ -4,6 +4,11 @@
   z-index: 100;
   position: fixed;
   font-size: 1.6em;
+  // Stack multiple floating toggles vertically.
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
 
   a {
     display: inline-flex;
@@ -31,6 +36,12 @@
         opacity: 0.5;
       }
     }
+
+    // A toggle revealed by JS (e.g. the crossfade opt-out) stays hidden until
+    // shown; the [hidden] attribute must beat the `display: inline-flex` above.
+    &[hidden] {
+      display: none;
+    }
   }
 }
 
@@ -43,5 +54,24 @@
 body.colorscheme-auto .colorscheme-toggle .icon-auto,
 body.colorscheme-light .colorscheme-toggle .icon-light,
 body.colorscheme-dark .colorscheme-toggle .icon-dark {
+  display: inline-flex;
+}
+
+// Immersive opt-out toggle: show the icon for the action available now —
+// "collapse" while immersive, "expand" once collapsed.
+.immersive-toggle .toggle-icon {
+  display: none;
+  line-height: 0;
+}
+
+.immersive-toggle .icon-immersive {
+  display: inline-flex;
+}
+
+body.immersive-collapsed .immersive-toggle .icon-immersive {
+  display: none;
+}
+
+body.immersive-collapsed .immersive-toggle .icon-collapsed {
   display: inline-flex;
 }

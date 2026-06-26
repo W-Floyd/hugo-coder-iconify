@@ -122,3 +122,52 @@
 .scroll-crossfade__frame--fade {
   opacity: 0;
 }
+
+// Opted-out view (the floating toggle in coder.js, or prefers-reduced-motion by
+// default): collapse the pinned, full-bleed crossfade into a plain vertical
+// stack of complete images that flow in the content column, styled like any
+// other body image. coder.js clears the inline opacity it set so every frame
+// shows here.
+body.immersive-collapsed .content .scroll-crossfade {
+  height: auto;
+  width: auto;
+  margin-left: 0;
+
+  .scroll-crossfade__stage {
+    position: static;
+    height: auto;
+    overflow: visible;
+  }
+
+  // Undo the immersive layer layout; match the regular body-image box below.
+  .scroll-crossfade__frame {
+    position: static;
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 2rem auto;
+    opacity: 1;
+    object-fit: initial;
+    background-color: transparent;
+  }
+
+  &::before,
+  &::after {
+    display: none;
+  }
+
+  figcaption {
+    position: static;
+    transform: none;
+    inset: auto;
+    margin: 1rem auto 0;
+    max-width: 100%;
+  }
+}
+
+// Give collapsed frames the same sleek body-image look as regular images,
+// honoring the page's `plainImages` opt-out exactly as `_content.scss` does.
+body.immersive-collapsed .post:not(.plain-images) .scroll-crossfade__frame {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}

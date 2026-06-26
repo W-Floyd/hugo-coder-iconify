@@ -1,5 +1,5 @@
-{{ if not .Site.Params.hideColorSchemeToggle }}
 <div class="float-container">
+  {{ if not .Site.Params.hideColorSchemeToggle }}
   {{/*
     Tri-state color-scheme toggle: cycles auto -> light -> dark -> auto (handled
     in coder.js). All three icons are rendered; CSS shows only the one matching
@@ -17,5 +17,19 @@
       {{ partial "icons/icon" (dict "vendor" "mdi" "name" "weather-night" "height" "1.5em" "width" "1.5em") }}
     </span>
   </a>
+  {{ end }}
+  {{/*
+    Opt-out toggle for immersive effects (scroll-crossfade sections and the
+    fullscreen header wallpaper). Hidden until coder.js detects one on screen,
+    then it collapses the pinned, scroll-hijacking views into a plain page (and
+    back). CSS shows the icon for the action available now (body.immersive-collapsed).
+  */}}
+  <a id="immersive-toggle" class="immersive-toggle" role="button" tabindex="0" hidden aria-label="{{ i18n "immersive_toggle" | default "Toggle immersive view" }}">
+    <span class="toggle-icon icon-immersive" title="Collapse to a plain page">
+      {{ partial "icons/icon" (dict "vendor" "mdi" "name" "fullscreen-exit" "height" "1.5em" "width" "1.5em") }}
+    </span>
+    <span class="toggle-icon icon-collapsed" title="Show the immersive view">
+      {{ partial "icons/icon" (dict "vendor" "mdi" "name" "fullscreen" "height" "1.5em" "width" "1.5em") }}
+    </span>
+  </a>
 </div>
-{{ end }}
