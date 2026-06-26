@@ -65,7 +65,7 @@
 {{- /* `-hq` companion (if any) carried as data-* for the HQ/HD toggle in coder.js. */ -}}
 <figure data-crossfade-frame class="scroll-crossfade__frame{{ if eq $fit "contain" }} scroll-crossfade__frame--contain{{ end }}{{ if and $caption (ne $captionPosition "center") }} scroll-crossfade__frame--cap-{{ $captionPosition }}{{ end }}">
   <a class="scroll-crossfade__link" href="{{ $full }}"{{ with $r.hqFull }} data-hq-href="{{ . }}"{{ end }} title="View full size">
-    <img class="scroll-crossfade__img" src="{{ $url }}"{{ with $srcset }} srcset="{{ delimit . ", " }}" sizes="100vw"{{ end }}{{ with $r.hqPrimary }} data-hq-src="{{ . }}"{{ end }}{{ with $r.hqSrcset }} data-hq-srcset="{{ delimit . ", " }}"{{ end }} alt="{{ $alt }}" loading="lazy"{{ with $objectPosition }} style="object-position: {{ . | safeCSS }};"{{ end }} />
+    <img class="scroll-crossfade__img" src="{{ $url }}"{{ with $srcset }} srcset="{{ delimit . ", " }}" sizes="100vw"{{ end }}{{ with $r.hqPrimary }} data-hq-src="{{ . }}"{{ end }}{{ with $r.hqSrcset }} {{ printf `data-hq-srcset=%q` (delimit . ", ") | safeHTMLAttr }}{{ end }} alt="{{ $alt }}" loading="lazy"{{ with $objectPosition }} style="object-position: {{ . | safeCSS }};"{{ end }} />
   </a>
   {{- with $caption }}<figcaption class="scroll-crossfade__caption{{ if ne $captionSize "medium" }} scroll-crossfade__caption--{{ $captionSize }}{{ end }}">{{ . | $.Page.RenderString }}</figcaption>{{ end -}}
 </figure>
