@@ -75,10 +75,16 @@
     isolation: isolate;
   }
 
-  // Default: the image fills the full-bleed frame, cropping to cover it.
-  .scroll-crossfade__img {
+  // The link is the full-bleed layer (so the whole frame is clickable through
+  // to the full-size image); the image fills it, cropping to cover. The image
+  // itself stays in normal flow inside the link.
+  .scroll-crossfade__link {
     position: absolute;
     inset: 0;
+    display: block;
+  }
+  .scroll-crossfade__img {
+    display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -187,6 +193,13 @@ body.immersive-collapsed .content .scroll-crossfade {
     margin: 2rem auto;
     opacity: 1;
     place-items: initial;
+  }
+
+  // Collapse the full-bleed link back into normal flow so the image lays out
+  // like any other body image (it stays clickable to the full-size file).
+  .scroll-crossfade__link {
+    position: static;
+    display: block;
   }
 
   // Match the regular body-image box below.

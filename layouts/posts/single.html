@@ -51,8 +51,11 @@
 
       <div class="post-content">
         {{ with .Params.featuredImage }}
-          {{ $img := $.Resources.GetMatch . }}
-          <img src="{{ with $img }}{{ .RelPermalink }}{{ else }}{{ . | relURL }}{{ end }}" alt="Featured image"/>
+          {{ $src := . | relURL }}
+          {{ with $.Resources.GetMatch . }}{{ $src = .RelPermalink }}{{ end }}
+          <a href="{{ $src }}" title="View full size">
+            <img src="{{ $src }}" alt="Featured image"/>
+          </a>
         {{ end }}
         {{ .Content }}
       </div>

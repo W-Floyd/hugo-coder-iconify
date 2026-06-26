@@ -46,21 +46,25 @@
 {{- end -}}
 {{- $objectPosition := .Get "objectPosition" -}}
 {{- /* Resolve through the tiered image system so a laddered source yields a
-       full-bleed srcset (sizes 100vw). Frames are full-bleed, so no full-res
-       link is needed. Falls back to a site-asset path or absolute URL when the
-       source is not a page resource. */ -}}
+       full-bleed srcset (sizes 100vw), plus a native-width variant so the frame
+       can link to the full-size image. Falls back to a site-asset path or
+       absolute URL when the source is not a page resource. */ -}}
 {{- $r := partial "responsive-image.html" (dict
       "page" $.Page
       "src" $src
       "widths" "640 1280 1920 2560 3840"
-      "genNative" false) -}}
+      "genNative" true) -}}
 {{- $url := $r.primary -}}
 {{- $srcset := $r.srcset -}}
+{{- $full := $r.full -}}
 {{- if not $url -}}
   {{- $parsed := urls.Parse $src -}}
   {{- $url = cond (ne $parsed.Scheme "") $src ($src | relURL) -}}
 {{- end -}}
+{{- $full = $full | default $url -}}
 <figure data-crossfade-frame class="scroll-crossfade__frame{{ if eq $fit "contain" }} scroll-crossfade__frame--contain{{ end }}{{ if and $caption (ne $captionPosition "center") }} scroll-crossfade__frame--cap-{{ $captionPosition }}{{ end }}">
-  <img class="scroll-crossfade__img" src="{{ $url }}"{{ with $srcset }} srcset="{{ delimit . ", " }}" sizes="100vw"{{ end }} alt="{{ $alt }}" loading="lazy"{{ with $objectPosition }} style="object-position: {{ . | safeCSS }};"{{ end }} />
+  <a class="scroll-crossfade__link" href="{{ $full }}" title="View full size">
+    <img class="scroll-crossfade__img" src="{{ $url }}"{{ with $srcset }} srcset="{{ delimit . ", " }}" sizes="100vw"{{ end }} alt="{{ $alt }}" loading="lazy"{{ with $objectPosition }} style="object-position: {{ . | safeCSS }};"{{ end }} />
+  </a>
   {{- with $caption }}<figcaption class="scroll-crossfade__caption{{ if ne $captionSize "medium" }} scroll-crossfade__caption--{{ $captionSize }}{{ end }}">{{ . | $.Page.RenderString }}</figcaption>{{ end -}}
 </figure>
