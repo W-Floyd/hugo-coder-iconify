@@ -52,6 +52,69 @@ darkModeMediaQuery.addEventListener('change', () => {
     if (currentMode() === 'auto') applyMode('auto', false);
 });
 
+// --- Image quality (HQ/HD) toggle ------------------------------------------
+// Pages can ship `-hq` image variants alongside the stock ones (see the
+// responsive-image partial), emitted as data-hq-src/-srcset on the <img> and
+// data-hq-href on its full-size link. This toggle swaps every such image (and
+// link) between the stock ("HD") and high-quality ("HQ") set, persisted in
+// localStorage. It only appears when the current page actually has -hq images.
+const IMAGE_MODES = ['hd', 'hq'];
+const HQ_IMG_SELECTOR = 'img[data-hq-src], img[data-hq-srcset]';
+
+function currentImageMode() {
+    const stored = localStorage.getItem('imagequality');
+    return IMAGE_MODES.includes(stored) ? stored : 'hd';
+}
+
+// Swap the page's images (and full-size links) to the chosen set. The stock
+// src/srcset are stashed on first switch to HQ so HD can be restored exactly.
+function applyImageMode(mode) {
+    body.classList.toggle('images-hq', mode === 'hq');
+    document.querySelectorAll(HQ_IMG_SELECTOR).forEach((img) => {
+        if (mode === 'hq') {
+            if (img.dataset.hdSrc === undefined) img.dataset.hdSrc = img.getAttribute('src') || '';
+            if (img.dataset.hdSrcset === undefined) img.dataset.hdSrcset = img.getAttribute('srcset') || '';
+            // Clear the stock srcset when the HQ set has none, else the browser
+            // would keep picking a stock candidate over the HQ src.
+            if (img.dataset.hqSrcset) img.setAttribute('srcset', img.dataset.hqSrcset);
+            else img.removeAttribute('srcset');
+            if (img.dataset.hqSrc) img.setAttribute('src', img.dataset.hqSrc);
+        } else if (img.dataset.hdSrc !== undefined) {
+            if (img.dataset.hdSrcset) img.setAttribute('srcset', img.dataset.hdSrcset);
+            else img.removeAttribute('srcset');
+            img.setAttribute('src', img.dataset.hdSrc);
+        }
+    });
+    document.querySelectorAll('a[data-hq-href]').forEach((a) => {
+        if (mode === 'hq') {
+            if (a.dataset.hdHref === undefined) a.dataset.hdHref = a.getAttribute('href') || '';
+            a.setAttribute('href', a.dataset.hqHref);
+        } else if (a.dataset.hdHref !== undefined) {
+            a.setAttribute('href', a.dataset.hdHref);
+        }
+    });
+}
+
+function setImageMode(mode) {
+    localStorage.setItem('imagequality', mode);
+    applyImageMode(mode);
+}
+
+const hqToggle = document.getElementById('hq-toggle');
+if (hqToggle && document.querySelector(HQ_IMG_SELECTOR)) {
+    hqToggle.hidden = false;
+    applyImageMode(currentImageMode());
+    const flipImageMode = () =>
+        setImageMode(IMAGE_MODES[(IMAGE_MODES.indexOf(currentImageMode()) + 1) % IMAGE_MODES.length]);
+    hqToggle.addEventListener('click', flipImageMode);
+    hqToggle.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            flipImageMode();
+        }
+    });
+}
+
 // Push the active theme to comment embeds (utterances/giscus) if present.
 function notifyEmbeds(theme, wait) {
     const setUtterances = (frame) => frame.contentWindow.postMessage(

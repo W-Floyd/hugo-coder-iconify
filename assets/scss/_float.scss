@@ -75,3 +75,26 @@ body.immersive-collapsed .immersive-toggle .icon-immersive {
 body.immersive-collapsed .immersive-toggle .icon-collapsed {
   display: inline-flex;
 }
+
+// Image-quality (HQ/HD) toggle: short text labels rather than an icon. Show
+// only the label for the active mode — "HD" by default, "HQ" once the visitor
+// has opted in (body.images-hq).
+.hq-toggle .toggle-icon {
+  display: none;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.hq-toggle .icon-hd {
+  display: inline-flex;
+}
+
+body.images-hq .hq-toggle .icon-hd {
+  display: none;
+}
+
+body.images-hq .hq-toggle .icon-hq {
+  display: inline-flex;
+}

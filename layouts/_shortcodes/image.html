@@ -45,17 +45,27 @@
 {{- $srcset := $r.srcset -}}
 {{- $full := $r.full -}}
 
+{{- /* When an `-hq` companion exists, carry it as data-* so the HQ/HD toggle
+       (coder.js) can swap the displayed image (and its full-size link) at
+       runtime. Absent -hq files leave these empty and the toggle is hidden. */ -}}
+{{- $hqAttr := "" -}}
+{{- if $r.hqPrimary -}}
+  {{- $hqAttr = printf ` data-hq-src=%q` $r.hqPrimary -}}
+  {{- with $r.hqSrcset -}}{{- $hqAttr = printf `%s data-hq-srcset=%q` $hqAttr (delimit . ", ") -}}{{- end -}}
+{{- end -}}
+
 {{- if not $primary -}}
   {{- warnf "image: no file found for %q" $src -}}
 {{- else -}}
-{{- $img := printf `<img src=%q alt=%q%s%s loading=%q decoding="async"%s />`
+{{- $img := printf `<img src=%q alt=%q%s%s%s loading=%q decoding="async"%s />`
       $primary $alt
       (cond (gt (len $srcset) 0) (printf ` srcset=%q sizes=%q` (delimit $srcset ", ") $sizes) "")
+      $hqAttr
       (cond (ne $class "") (printf ` class=%q` $class) "")
       $loading
       (cond (ne $fetchpriority "") (printf ` fetchpriority=%q` $fetchpriority) "") -}}
 {{- if and $link $full -}}
-<a href="{{ $full }}" target="_blank" rel="noopener" class="image-full">{{ $img | safeHTML }}</a>
+<a href="{{ $full }}"{{ with $r.hqFull }} data-hq-href="{{ . }}"{{ end }} target="_blank" rel="noopener" class="image-full">{{ $img | safeHTML }}</a>
 {{- else -}}
 {{ $img | safeHTML }}
 {{- end -}}

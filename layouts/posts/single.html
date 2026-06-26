@@ -51,10 +51,20 @@
 
       <div class="post-content">
         {{ with .Params.featuredImage }}
-          {{ $src := . | relURL }}
-          {{ with $.Resources.GetMatch . }}{{ $src = .RelPermalink }}{{ end }}
-          <a href="{{ $src }}" title="View full size">
-            <img src="{{ $src }}" alt="Featured image"/>
+          {{ $r := partial "responsive-image.html" (dict "page" $ "src" . "widths" "400 800 1200 1720" "genNative" true) }}
+          {{ $url := $r.primary }}
+          {{ $srcset := $r.srcset }}
+          {{ $full := $r.full }}
+          {{ if not $url }}
+            {{ $parsed := urls.Parse . }}
+            {{ $url = cond (ne $parsed.Scheme "") . (. | relURL) }}
+          {{ end }}
+          {{ $full = $full | default $url }}
+          {{/* Featured image lives in the centered content column (caps at 860px;
+               see the image shortcode), so size it to that rather than 100vw.
+               Any `-hq` companion is carried as data-* for the HQ/HD toggle. */}}
+          <a href="{{ $full }}"{{ with $r.hqFull }} data-hq-href="{{ . }}"{{ end }} title="View full size">
+            <img src="{{ $url }}"{{ with $srcset }} srcset="{{ delimit . ", " }}" sizes="(max-width: 768px) 100vw, min(100vw - 40px, 860px)"{{ end }}{{ with $r.hqPrimary }} data-hq-src="{{ . }}"{{ end }}{{ with $r.hqSrcset }} data-hq-srcset="{{ delimit . ", " }}"{{ end }} alt="Featured image"/>
           </a>
         {{ end }}
         {{ .Content }}
