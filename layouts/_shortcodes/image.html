@@ -1,0 +1,62 @@
+{{- /*
+  Responsive body image. Resolves a single logical source to the best available
+  tiered set (see partials/responsive-image.html): pre-generated size-ladder
+  variants -> width-descriptor srcset; a single pre-generated output -> plain
+  img; otherwise build-time AVIF generation. The image is wrapped in a link to
+  the full-resolution (100%) variant unless link="false".
+
+  src      required. Source/base path relative to the page (e.g.
+           "media/photo.avif"). Matching is by stem; the extension only locates
+           the file.
+  alt      optional. Alt text.
+  sizes    optional. Rarely needed. Defaults to the content-column layout (full
+           width on mobile, capped at the content column on desktop). Override
+           only for unusual layouts (e.g. a floated thumbnail). sizes="auto" is
+           intentionally not the default: body images are styled max-width:100%
+           with no explicit width, which makes auto-sizing pick a too-small file.
+  class    optional. Class on the <img>.
+  loading  optional. "lazy" (default) or "eager".
+  fetchpriority
+           optional. e.g. "high".
+  link     optional. "true" (default) wraps the image in a link to the 100%
+           variant; "false" emits a bare <img>.
+  widths   optional. Space-separated widths for the build-time generation
+           fallback. Default "200 400 600 800".
+*/ -}}
+{{- $src := .Get "src" | default (.Get 0) -}}
+{{- $alt := .Get "alt" | default "" -}}
+{{- $class := .Get "class" -}}
+{{- $loading := .Get "loading" | default "lazy" -}}
+{{- $fetchpriority := .Get "fetchpriority" -}}
+{{- /* Default matches the theme layout: html font-size is 62.5% (1rem = 10px),
+       .container is 90rem with 2rem side padding, so the content column tops out
+       at (90 - 4) * 10 = 860px; padding is 40px. Below 768px images are full
+       width. Expressed in px because font-relative units in `sizes` are
+       unreliable with the preload scanner. */ -}}
+{{- $sizes := .Get "sizes" | default "(max-width: 768px) 100vw, min(100vw - 40px, 860px)" -}}
+{{- $link := not (in (slice "false" "0" "") (.Get "link" | default "true")) -}}
+
+{{- $r := partial "responsive-image.html" (dict
+      "page" $.Page
+      "src" $src
+      "widths" (.Get "widths" | default "200 400 600 800")
+      "genNative" $link) -}}
+{{- $primary := $r.primary -}}
+{{- $srcset := $r.srcset -}}
+{{- $full := $r.full -}}
+
+{{- if not $primary -}}
+  {{- warnf "image: no file found for %q" $src -}}
+{{- else -}}
+{{- $img := printf `<img src=%q alt=%q%s%s loading=%q decoding="async"%s />`
+      $primary $alt
+      (cond (gt (len $srcset) 0) (printf ` srcset=%q sizes=%q` (delimit $srcset ", ") $sizes) "")
+      (cond (ne $class "") (printf ` class=%q` $class) "")
+      $loading
+      (cond (ne $fetchpriority "") (printf ` fetchpriority=%q` $fetchpriority) "") -}}
+{{- if and $link $full -}}
+<a href="{{ $full }}" target="_blank" rel="noopener" class="image-full">{{ $img | safeHTML }}</a>
+{{- else -}}
+{{ $img | safeHTML }}
+{{- end -}}
+{{- end -}}

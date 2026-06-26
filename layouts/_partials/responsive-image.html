@@ -1,0 +1,102 @@
+{{- /*
+  Resolve one logical image source to a tiered set of files. Returns a dict:
+    primary  URL for the <img src> (smallest variant / the single output)
+    srcset   slice of "URL Nw" width-descriptor entries (empty when single)
+    full     URL of the largest (100%) variant (for a full-res link)
+
+  Resolution priority:
+    1. Pre-generated <stem>-<width>.{avif,webp} siblings (the images_build.sh
+       size ladder) -> width-descriptor srcset, deduped by real pixel width.
+    2. A single pre-generated output <stem>.{avif,webp} -> plain src, no srcset.
+    3. Build-time Hugo generation from the source resource (AVIF) at `widths`,
+       and (when genNative) a native-width variant for `full`.
+
+  Discovery is a filename walk of the source directory, so the pipeline's
+  output is used as-is. Returns empty primary if nothing resolves (callers may
+  fall back, e.g. for site-asset paths or absolute URLs).
+
+  Params (dict):
+    page       required. The page (.Page) the source is relative to.
+    src        required. Source/base path, e.g. "media/photo.avif". Matching is
+               by stem; the extension only locates the file.
+    widths     optional. Space-separated widths for the generation fallback.
+    genNative  optional. When true, the generation fallback also emits a
+               native-width AVIF so `full` is a served file (not the source).
+*/ -}}
+{{- $page := .page -}}
+{{- $src := .src -}}
+{{- $widths := .widths | default "200 400 600 800" -}}
+{{- $genNative := .genNative -}}
+
+{{- $dir := path.Dir $src -}}
+{{- $stem := strings.TrimSuffix (path.Ext $src) (path.Base $src) -}}
+{{- $reStem := replaceRE `[.\[\](){}+*?^$|\\]` "\\${0}" $stem -}}
+
+{{- $pageDir := "" -}}
+{{- with $page.File -}}{{- $pageDir = .Dir -}}{{- end -}}
+{{- $scanDir := path.Join "/content" $pageDir $dir -}}
+
+{{- $set := slice -}}
+{{- $single := "" -}}
+{{- range (readDir $scanDir) -}}
+  {{- $m := findRESubmatch (printf `^%s-([0-9]+)\.(avif|webp)$` $reStem) .Name -}}
+  {{- if $m -}}
+    {{- $set = $set | append (dict "name" .Name "w" (int (index (index $m 0) 1))) -}}
+  {{- else if findRE (printf `^%s\.(avif|webp)$` $reStem) .Name -}}
+    {{- $single = .Name -}}
+  {{- end -}}
+{{- end -}}
+
+{{- $srcset := slice -}}
+{{- $primary := "" -}}
+{{- $full := "" -}}
+{{- $minW := 0 -}}
+{{- $maxW := 0 -}}
+
+{{- if $set -}}
+  {{- /* 1. sized variants -> width-descriptor srcset. Use each file's real
+         pixel width when it's a page resource (keeps a shrink-only pipeline
+         honest); dedupe identical widths; smallest is src, largest is full. */ -}}
+  {{- $seen := slice -}}
+  {{- range $set -}}
+    {{- $rel := path.Join $dir .name -}}
+    {{- $u := "" -}}{{- $w := .w -}}
+    {{- with $page.Resources.GetMatch $rel -}}
+      {{- $u = .RelPermalink -}}{{- $w = .Width -}}
+    {{- else -}}
+      {{- $u = path.Join $page.RelPermalink $rel -}}
+    {{- end -}}
+    {{- if not (in $seen $w) -}}
+      {{- $seen = $seen | append $w -}}
+      {{- $srcset = $srcset | append (printf "%s %dw" $u $w) -}}
+      {{- if or (eq $minW 0) (lt $w $minW) -}}{{- $minW = $w -}}{{- $primary = $u -}}{{- end -}}
+      {{- if gt $w $maxW -}}{{- $maxW = $w -}}{{- $full = $u -}}{{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- else if $single -}}
+  {{- /* 2. single pre-generated output */ -}}
+  {{- $rel := path.Join $dir $single -}}
+  {{- with $page.Resources.GetMatch $rel -}}{{- $primary = .RelPermalink -}}{{- else -}}{{- $primary = path.Join $page.RelPermalink $rel -}}{{- end -}}
+  {{- $full = $primary -}}
+{{- else -}}
+  {{- /* 3. build-time generation from the source resource */ -}}
+  {{- $img := $page.Resources.GetMatch $src | default (resources.Get $src) -}}
+  {{- with $img -}}
+    {{- range (split $widths " ") -}}
+      {{- $w := int . -}}
+      {{- if and (gt $w 0) (le $w $img.Width) -}}
+        {{- $r := $img.Resize (printf "%dx avif" $w) -}}
+        {{- $srcset = $srcset | append (printf "%s %dw" $r.RelPermalink $w) -}}
+        {{- if or (eq $minW 0) (lt $w $minW) -}}{{- $minW = $w -}}{{- $primary = $r.RelPermalink -}}{{- end -}}
+        {{- if gt $w $maxW -}}{{- $maxW = $w -}}{{- $full = $r.RelPermalink -}}{{- end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- if not $primary -}}{{- $primary = $img.RelPermalink -}}{{- end -}}
+    {{- if and $genNative (gt $img.Width $maxW) -}}
+      {{- $native := $img.Resize (printf "%dx avif" $img.Width) -}}
+      {{- $maxW = $img.Width -}}{{- $full = $native.RelPermalink -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- return (dict "primary" $primary "srcset" $srcset "full" $full) -}}

@@ -91,6 +91,13 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
     }
 
+    // The image shortcode wraps the <img> in a full-res link; make that anchor
+    // block-level so the body-image box (centered, max-width:100%) lays out as
+    // expected rather than shrink-wrapping inline.
+    &:not(.plain-images) .post-content a.image-full {
+      display: block;
+    }
+
     .post-meta {
       i {
         text-align: center;
