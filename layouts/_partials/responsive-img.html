@@ -23,11 +23,14 @@
     widths        optional. Build-time generation widths. Default "200 400 600 800".
     genNative     optional. Generate a native-width variant for the full link.
                   Default true.
-    deferSrcset   optional. For eager LCP images (the featured image): emit the
-                  srcset/sizes as data-srcset/data-sizes instead of live
-                  attributes, so the preload scanner fetches only the small src
-                  and coder.js promotes the responsive set for med/hi (and
-                  leaves it small for low). Default false.
+    deferSrcset   optional. For eager/in-view images (featured, crossfade
+                  frames): emit the srcset/sizes as data-srcset/data-sizes
+                  instead of live attributes, so the preload scanner fetches
+                  only the small src and coder.js promotes the responsive set
+                  for med/hi (and leaves it small for low). A <noscript> with
+                  the full responsive set is emitted as the no-JS fallback.
+                  Only pass this when coder.js will run (default JS enabled);
+                  otherwise the image is stuck on the small src. Default false.
 
   Returns a dict:
     img       the built <img ...> markup (use with `safeHTML`).
@@ -83,6 +86,22 @@
 {{- with $style -}}{{- $a = printf `%s style=%q` $a (. | safeCSS) -}}{{- end -}}
 
 {{- $img := printf `<img data-rimg src=%q alt=%q%s decoding="async" />` $url $alt $a -}}
+
+{{- /* No-JS fallback for deferred images: coder.js never runs to promote the
+       data-srcset, so without it the visitor would be stuck on the small src.
+       Emit a <noscript> with the full responsive set (live srcset) plus a style
+       that hides the deferred placeholder. Both only take effect when the
+       browser has JS off (noscript isn't rendered otherwise), so there's no
+       toggling or flash in the normal JS-on path. */ -}}
+{{- if and .deferSrcset (gt (len $r.srcset) 0) -}}
+  {{- $na := "" -}}
+  {{- with $class -}}{{- $na = printf `%s class=%q` $na . -}}{{- end -}}
+  {{- if and (gt (int $r.width) 0) (gt (int $r.height) 0) -}}{{- $na = printf `%s width="%d" height="%d"` $na (int $r.width) (int $r.height) -}}{{- end -}}
+  {{- $na = printf `%s srcset=%q sizes=%q` $na (delimit $r.srcset ", ") $sizes -}}
+  {{- with $loading -}}{{- $na = printf `%s loading=%q` $na . -}}{{- end -}}
+  {{- with $style -}}{{- $na = printf `%s style=%q` $na (. | safeCSS) -}}{{- end -}}
+  {{- $img = printf `%s<noscript><style>img[data-rimg][data-srcset]{display:none}</style><img src=%q alt=%q%s decoding="async" /></noscript>` $img $url $alt $na -}}
+{{- end -}}
 
 {{- return (dict
       "img" $img

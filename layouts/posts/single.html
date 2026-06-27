@@ -58,7 +58,7 @@
                small src: coder.js promotes it for med/hi and keeps it small for
                low (no wasted large fetch). The builder also carries any `-hq`
                companion as data-* for the quality toggle. */}}
-          {{ $r := partial "responsive-img.html" (dict "page" $ "src" . "alt" "Featured image" "widths" "400 800 1200 1720" "deferSrcset" true) }}
+          {{ $r := partial "responsive-img.html" (dict "page" $ "src" . "alt" "Featured image" "widths" "400 800 1200 1720" "deferSrcset" (not site.Params.disableDefaultJsScripts)) }}
           <a href="{{ $r.full }}"{{ with $r.hqFull }} data-hq-href="{{ . }}"{{ end }} target="_blank" rel="noopener" class="image-full" title="View full size">{{ $r.img | safeHTML }}</a>
         {{ end }}
         {{ .Content }}

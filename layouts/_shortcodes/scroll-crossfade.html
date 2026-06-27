@@ -68,7 +68,7 @@
       "loading" "lazy"
       "style" $style
       "widths" "640 1280 1920 2560 3840"
-      "deferSrcset" true) -}}
+      "deferSrcset" (not site.Params.disableDefaultJsScripts)) -}}
 <figure data-crossfade-frame class="scroll-crossfade__frame{{ if eq $fit "contain" }} scroll-crossfade__frame--contain{{ end }}{{ if and $caption (ne $captionPosition "center") }} scroll-crossfade__frame--cap-{{ $captionPosition }}{{ end }}">
   <a class="scroll-crossfade__link" href="{{ $r.full }}"{{ with $r.hqFull }} data-hq-href="{{ . }}"{{ end }} title="View full size">{{ $r.img | safeHTML }}</a>
   {{- with $caption }}<figcaption class="scroll-crossfade__caption{{ if ne $captionSize "medium" }} scroll-crossfade__caption--{{ $captionSize }}{{ end }}">{{ . | $.Page.RenderString }}</figcaption>{{ end -}}
