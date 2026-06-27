@@ -98,22 +98,28 @@
     {{- with $page.Resources.GetMatch $rel -}}{{- $p = .RelPermalink -}}{{- else -}}{{- $p = path.Join $page.RelPermalink $rel -}}{{- end -}}
     {{- $f = $p -}}
   {{- else -}}
-    {{- /* 3. build-time generation from the source resource */ -}}
+    {{- /* 3. build-time generation from the source resource. Only raster
+           images can be resized; a non-processable resource (e.g. SVG) has no
+           .Width/.Resize, so use it as-is — single output, no srcset. */ -}}
     {{- $img := $page.Resources.GetMatch $cand | default (resources.Get $cand) -}}
     {{- with $img -}}
-      {{- range (split $widths " ") -}}
-        {{- $w := int . -}}
-        {{- if and (gt $w 0) (le $w $img.Width) -}}
-          {{- $r := $img.Resize (printf "%dx avif" $w) -}}
-          {{- $ss = $ss | append (printf "%s %dw" $r.RelPermalink $w) -}}
-          {{- if or (eq $minW 0) (lt $w $minW) -}}{{- $minW = $w -}}{{- $p = $r.RelPermalink -}}{{- end -}}
-          {{- if gt $w $maxW -}}{{- $maxW = $w -}}{{- $f = $r.RelPermalink -}}{{- end -}}
+      {{- if reflect.IsImageResourceProcessable . -}}
+        {{- range (split $widths " ") -}}
+          {{- $w := int . -}}
+          {{- if and (gt $w 0) (le $w $img.Width) -}}
+            {{- $r := $img.Resize (printf "%dx avif" $w) -}}
+            {{- $ss = $ss | append (printf "%s %dw" $r.RelPermalink $w) -}}
+            {{- if or (eq $minW 0) (lt $w $minW) -}}{{- $minW = $w -}}{{- $p = $r.RelPermalink -}}{{- end -}}
+            {{- if gt $w $maxW -}}{{- $maxW = $w -}}{{- $f = $r.RelPermalink -}}{{- end -}}
+          {{- end -}}
         {{- end -}}
-      {{- end -}}
-      {{- if not $p -}}{{- $p = $img.RelPermalink -}}{{- end -}}
-      {{- if and $genNative (gt $img.Width $maxW) -}}
-        {{- $native := $img.Resize (printf "%dx avif" $img.Width) -}}
-        {{- $maxW = $img.Width -}}{{- $f = $native.RelPermalink -}}
+        {{- if not $p -}}{{- $p = $img.RelPermalink -}}{{- end -}}
+        {{- if and $genNative (gt $img.Width $maxW) -}}
+          {{- $native := $img.Resize (printf "%dx avif" $img.Width) -}}
+          {{- $maxW = $img.Width -}}{{- $f = $native.RelPermalink -}}
+        {{- end -}}
+      {{- else -}}
+        {{- $p = .RelPermalink -}}{{- $f = .RelPermalink -}}
       {{- end -}}
     {{- end -}}
   {{- end -}}

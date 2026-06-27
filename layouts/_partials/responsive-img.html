@@ -1,0 +1,75 @@
+{{- /*
+  Build one responsive <img> tag from a logical image source. Wraps
+  responsive-image.html (which resolves the tiered file set) and emits the
+  markup every image surface shares: the `data-rimg` marker, the width-
+  descriptor srcset, any `-hq` companion as data-hq-*, and the standard
+  loading/decoding hints. Callers supply their own wrapper (a full-size link,
+  a crossfade <figure>, etc.) and the layout-specific bits below.
+
+  Attributes are assembled with printf %q and returned for `safeHTML` so Hugo's
+  attribute URL-escaping doesn't mangle the comma-separated srcset (see commit
+  5c311d0).
+
+  Params (dict):
+    page          required. The page the source is relative to.
+    src           required. Source/base path (by stem; see responsive-image).
+    alt           optional. Alt text. Default "".
+    sizes         optional. `sizes` value, used only when a srcset is present.
+                  Default matches the content column (see image shortcode).
+    class         optional. class attribute on the <img>.
+    loading       optional. "lazy"/"eager". Omitted when empty (browser default).
+    fetchpriority optional. e.g. "high". Omitted when empty.
+    style         optional. Inline CSS (run through safeCSS). Omitted when empty.
+    widths        optional. Build-time generation widths. Default "200 400 600 800".
+    genNative     optional. Generate a native-width variant for the full link.
+                  Default true.
+
+  Returns a dict:
+    img       the built <img ...> markup (use with `safeHTML`).
+    primary   the resolved primary URL ("" when the source didn't resolve to a
+              local file — callers decide whether to warn or fall back).
+    url       primary, or the source resolved as a site/absolute URL when no
+              local file matched (so `img` always has a usable src).
+    full      URL of the full-size variant (defaults to url).
+    hqFull    full-size URL of the `-hq` companion ("" when none).
+*/ -}}
+{{- $page := .page -}}
+{{- $src := .src -}}
+{{- $alt := .alt | default "" -}}
+{{- $sizes := .sizes | default "(max-width: 768px) 100vw, min(100vw - 40px, 860px)" -}}
+{{- $class := .class | default "" -}}
+{{- $loading := .loading | default "" -}}
+{{- $fetchpriority := .fetchpriority | default "" -}}
+{{- $style := .style | default "" -}}
+
+{{- $r := partial "responsive-image.html" (dict
+      "page" $page
+      "src" $src
+      "widths" (.widths | default "200 400 600 800")
+      "genNative" (cond (isset . "genNative") .genNative true)) -}}
+
+{{- /* Fall back to a site-asset/absolute URL when the source isn't a local
+       file, so the tag always has a usable src. */ -}}
+{{- $url := $r.primary -}}
+{{- if not $url -}}
+  {{- $parsed := urls.Parse $src -}}
+  {{- $url = cond (ne $parsed.Scheme "") $src ($src | relURL) -}}
+{{- end -}}
+
+{{- $a := "" -}}
+{{- with $class -}}{{- $a = printf `%s class=%q` $a . -}}{{- end -}}
+{{- if gt (len $r.srcset) 0 -}}{{- $a = printf `%s srcset=%q sizes=%q` $a (delimit $r.srcset ", ") $sizes -}}{{- end -}}
+{{- with $r.hqPrimary -}}{{- $a = printf `%s data-hq-src=%q` $a . -}}{{- end -}}
+{{- with $r.hqSrcset -}}{{- $a = printf `%s data-hq-srcset=%q` $a (delimit . ", ") -}}{{- end -}}
+{{- with $loading -}}{{- $a = printf `%s loading=%q` $a . -}}{{- end -}}
+{{- with $fetchpriority -}}{{- $a = printf `%s fetchpriority=%q` $a . -}}{{- end -}}
+{{- with $style -}}{{- $a = printf `%s style=%q` $a (. | safeCSS) -}}{{- end -}}
+
+{{- $img := printf `<img data-rimg src=%q alt=%q%s decoding="async" />` $url $alt $a -}}
+
+{{- return (dict
+      "img" $img
+      "primary" $r.primary
+      "url" $url
+      "full" ($r.full | default $url)
+      "hqFull" $r.hqFull) -}}

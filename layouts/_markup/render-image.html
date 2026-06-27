@@ -14,39 +14,16 @@
 {{- $alt := .Text | safeHTML -}}
 {{- $title := .Title -}}
 
-{{- /* Matches the shortcode default: full width on mobile, capped at the
-       content column (860px) on desktop. px because font-relative units in
-       `sizes` are unreliable with the preload scanner. */ -}}
-{{- $sizes := "(max-width: 768px) 100vw, min(100vw - 40px, 860px)" -}}
-
-{{- $r := partial "responsive-image.html" (dict
+{{- $r := partial "responsive-img.html" (dict
       "page" .Page
       "src" $src
-      "widths" "200 400 600 800"
-      "genNative" true) -}}
-{{- $primary := $r.primary -}}
-{{- $srcset := $r.srcset -}}
-{{- $full := $r.full -}}
+      "alt" $alt
+      "loading" "lazy") -}}
 
-{{- /* Carry any `-hq` companion as data-* for the quality toggle (coder.js). */ -}}
-{{- $hqAttr := "" -}}
-{{- if $r.hqPrimary -}}
-  {{- $hqAttr = printf ` data-hq-src=%q` $r.hqPrimary -}}
-  {{- with $r.hqSrcset -}}{{- $hqAttr = printf `%s data-hq-srcset=%q` $hqAttr (delimit . ", ") -}}{{- end -}}
-{{- end -}}
-
-{{- if not $primary -}}
+{{- if not $r.primary -}}
   {{- /* External/absolute/unresolved source: emit a plain image unchanged. */ -}}
   {{- printf `<img src=%q alt=%q%s loading="lazy" decoding="async" />`
         $src $alt (cond (ne $title "") (printf ` title=%q` $title) "") | safeHTML -}}
 {{- else -}}
-  {{- $img := printf `<img data-rimg src=%q alt=%q%s%s loading="lazy" decoding="async" />`
-        $primary $alt
-        (cond (gt (len $srcset) 0) (printf ` srcset=%q sizes=%q` (delimit $srcset ", ") $sizes) "")
-        $hqAttr -}}
-  {{- if $full -}}
-<a href="{{ $full }}"{{ with $r.hqFull }} data-hq-href="{{ . }}"{{ end }}{{ with $title }} title="{{ . }}"{{ end }} target="_blank" rel="noopener" class="image-full">{{ $img | safeHTML }}</a>
-  {{- else -}}
-{{ $img | safeHTML }}
-  {{- end -}}
+<a href="{{ $r.full }}"{{ with $r.hqFull }} data-hq-href="{{ . }}"{{ end }}{{ with $title }} title="{{ . }}"{{ end }} target="_blank" rel="noopener" class="image-full">{{ $r.img | safeHTML }}</a>
 {{- end -}}

@@ -47,25 +47,21 @@
 {{- $objectPosition := .Get "objectPosition" -}}
 {{- /* Resolve through the tiered image system so a laddered source yields a
        full-bleed srcset (sizes 100vw), plus a native-width variant so the frame
-       can link to the full-size image. Falls back to a site-asset path or
-       absolute URL when the source is not a page resource. */ -}}
-{{- $r := partial "responsive-image.html" (dict
+       can link to the full-size image. responsive-img falls back to a site-asset
+       path or absolute URL when the source is not a page resource, and carries
+       any `-hq` companion as data-* for the quality toggle (coder.js). */ -}}
+{{- $style := "" -}}
+{{- with $objectPosition -}}{{- $style = printf "object-position: %s;" . -}}{{- end -}}
+{{- $r := partial "responsive-img.html" (dict
       "page" $.Page
       "src" $src
-      "widths" "640 1280 1920 2560 3840"
-      "genNative" true) -}}
-{{- $url := $r.primary -}}
-{{- $srcset := $r.srcset -}}
-{{- $full := $r.full -}}
-{{- if not $url -}}
-  {{- $parsed := urls.Parse $src -}}
-  {{- $url = cond (ne $parsed.Scheme "") $src ($src | relURL) -}}
-{{- end -}}
-{{- $full = $full | default $url -}}
-{{- /* `-hq` companion (if any) carried as data-* for the HQ/HD toggle in coder.js. */ -}}
+      "alt" $alt
+      "sizes" "100vw"
+      "class" "scroll-crossfade__img"
+      "loading" "lazy"
+      "style" $style
+      "widths" "640 1280 1920 2560 3840") -}}
 <figure data-crossfade-frame class="scroll-crossfade__frame{{ if eq $fit "contain" }} scroll-crossfade__frame--contain{{ end }}{{ if and $caption (ne $captionPosition "center") }} scroll-crossfade__frame--cap-{{ $captionPosition }}{{ end }}">
-  <a class="scroll-crossfade__link" href="{{ $full }}"{{ with $r.hqFull }} data-hq-href="{{ . }}"{{ end }} title="View full size">
-    <img data-rimg class="scroll-crossfade__img" src="{{ $url }}"{{ with $srcset }} srcset="{{ delimit . ", " }}" sizes="100vw"{{ end }}{{ with $r.hqPrimary }} data-hq-src="{{ . }}"{{ end }}{{ with $r.hqSrcset }} {{ printf `data-hq-srcset=%q` (delimit . ", ") | safeHTMLAttr }}{{ end }} alt="{{ $alt }}" loading="lazy"{{ with $objectPosition }} style="object-position: {{ . | safeCSS }};"{{ end }} />
-  </a>
+  <a class="scroll-crossfade__link" href="{{ $r.full }}"{{ with $r.hqFull }} data-hq-href="{{ . }}"{{ end }} title="View full size">{{ $r.img | safeHTML }}</a>
   {{- with $caption }}<figcaption class="scroll-crossfade__caption{{ if ne $captionSize "medium" }} scroll-crossfade__caption--{{ $captionSize }}{{ end }}">{{ . | $.Page.RenderString }}</figcaption>{{ end -}}
 </figure>
