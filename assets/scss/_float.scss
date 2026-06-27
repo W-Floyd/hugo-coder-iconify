@@ -76,9 +76,9 @@ body.immersive-collapsed .immersive-toggle .icon-collapsed {
   display: inline-flex;
 }
 
-// Image-quality (HQ/HD) toggle: short text labels rather than an icon. Show
-// only the label for the active mode — "HD" by default, "HQ" once the visitor
-// has opted in (body.images-hq).
+// Image-quality (low/med/hi) toggle: short text labels rather than an icon.
+// Show only the label for the active mode (body[data-image-mode]), defaulting
+// to "MED" — the as-rendered state — before coder.js sets the attribute.
 .hq-toggle .toggle-icon {
   display: none;
   font-size: 1.1rem;
@@ -87,14 +87,16 @@ body.immersive-collapsed .immersive-toggle .icon-collapsed {
   line-height: 1;
 }
 
-.hq-toggle .icon-hd {
+.hq-toggle .icon-med {
   display: inline-flex;
 }
 
-body.images-hq .hq-toggle .icon-hd {
+body[data-image-mode] .hq-toggle .icon-med {
   display: none;
 }
 
-body.images-hq .hq-toggle .icon-hq {
+body[data-image-mode="low"] .hq-toggle .icon-low,
+body[data-image-mode="med"] .hq-toggle .icon-med,
+body[data-image-mode="hi"] .hq-toggle .icon-hi {
   display: inline-flex;
 }

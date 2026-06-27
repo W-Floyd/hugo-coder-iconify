@@ -57,7 +57,7 @@
 {{- if not $primary -}}
   {{- warnf "image: no file found for %q" $src -}}
 {{- else -}}
-{{- $img := printf `<img src=%q alt=%q%s%s%s loading=%q decoding="async"%s />`
+{{- $img := printf `<img data-rimg src=%q alt=%q%s%s%s loading=%q decoding="async"%s />`
       $primary $alt
       (cond (gt (len $srcset) 0) (printf ` srcset=%q sizes=%q` (delimit $srcset ", ") $sizes) "")
       $hqAttr

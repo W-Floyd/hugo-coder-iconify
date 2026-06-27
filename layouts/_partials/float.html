@@ -19,15 +19,17 @@
   </a>
   {{ end }}
   {{/*
-    Image-quality toggle: lets a visitor opt in to higher-quality `-hq` image
-    variants on pages that ship them. Hidden until coder.js finds at least one
-    image with an -hq companion, then it swaps every such image (and its
-    full-size link) to the high-quality set, persisted in localStorage. CSS
-    shows the label for the current mode (body.images-hq).
+    Image-quality toggle: cycles a page's images through low/med/hi (handled in
+    coder.js). Hidden until coder.js finds at least one pipeline image
+    (data-rimg), then it swaps every such image (and its full-size link) between
+    the smallest stock variant (low), the stock responsive set (med), and the
+    high-quality `-hq` set where available (hi), persisted in localStorage. CSS
+    shows the label for the current mode (body[data-image-mode]).
   */}}
   <a id="hq-toggle" class="hq-toggle" role="button" tabindex="0" hidden aria-label="{{ i18n "image_quality_toggle" | default "Toggle image quality" }}">
-    <span class="toggle-icon icon-hd" title="Image quality: standard">HD</span>
-    <span class="toggle-icon icon-hq" title="Image quality: high">HQ</span>
+    <span class="toggle-icon icon-low" title="Image quality: low (smallest)">LOW</span>
+    <span class="toggle-icon icon-med" title="Image quality: standard">MED</span>
+    <span class="toggle-icon icon-hi" title="Image quality: high">HI</span>
   </a>
   {{/*
     Opt-out toggle for immersive effects (scroll-crossfade sections and the

@@ -52,46 +52,51 @@ darkModeMediaQuery.addEventListener('change', () => {
     if (currentMode() === 'auto') applyMode('auto', false);
 });
 
-// --- Image quality (HQ/HD) toggle ------------------------------------------
-// Pages can ship `-hq` image variants alongside the stock ones (see the
-// responsive-image partial), emitted as data-hq-src/-srcset on the <img> and
-// data-hq-href on its full-size link. This toggle swaps every such image (and
-// link) between the stock ("HD") and high-quality ("HQ") set, persisted in
-// localStorage. It only appears when the current page actually has -hq images.
-const IMAGE_MODES = ['hd', 'hq'];
-const HQ_IMG_SELECTOR = 'img[data-hq-src], img[data-hq-srcset]';
+// --- Image quality (low/med/hi) toggle -------------------------------------
+// Images from the responsive-image pipeline carry a `data-rimg` marker; those
+// that also ship `-hq` variants carry data-hq-src/-srcset (and data-hq-href on
+// their full-size link). This toggle cycles every managed image through three
+// quality modes, persisted in localStorage:
+//   low  smallest stock variant, srcset dropped so the browser can't upgrade
+//   med  the stock responsive set (src + srcset) — the as-rendered default
+//   hi   the high-quality `-hq` companion set (where an image ships one)
+// It appears whenever the page has any managed image.
+const IMAGE_MODES = ['low', 'med', 'hi'];
+const HQ_IMG_SELECTOR = 'img[data-rimg]';
 
 function currentImageMode() {
     const stored = localStorage.getItem('imagequality');
-    return IMAGE_MODES.includes(stored) ? stored : 'hd';
+    return IMAGE_MODES.includes(stored) ? stored : 'med';
 }
 
-// Swap the page's images (and full-size links) to the chosen set. The stock
-// src/srcset are stashed on first switch to HQ so HD can be restored exactly.
+// Swap the page's images (and full-size links) to the chosen mode. The stock
+// ("med") src/srcset — the as-rendered state — are stashed on first run so the
+// other modes can be derived from and restored to them exactly.
 function applyImageMode(mode) {
-    body.classList.toggle('images-hq', mode === 'hq');
+    body.dataset.imageMode = mode;
     document.querySelectorAll(HQ_IMG_SELECTOR).forEach((img) => {
-        if (mode === 'hq') {
-            if (img.dataset.hdSrc === undefined) img.dataset.hdSrc = img.getAttribute('src') || '';
-            if (img.dataset.hdSrcset === undefined) img.dataset.hdSrcset = img.getAttribute('srcset') || '';
+        if (img.dataset.medSrc === undefined) img.dataset.medSrc = img.getAttribute('src') || '';
+        if (img.dataset.medSrcset === undefined) img.dataset.medSrcset = img.getAttribute('srcset') || '';
+        if (mode === 'hi' && img.dataset.hqSrc) {
             // Clear the stock srcset when the HQ set has none, else the browser
             // would keep picking a stock candidate over the HQ src.
             if (img.dataset.hqSrcset) img.setAttribute('srcset', img.dataset.hqSrcset);
             else img.removeAttribute('srcset');
-            if (img.dataset.hqSrc) img.setAttribute('src', img.dataset.hqSrc);
-        } else if (img.dataset.hdSrc !== undefined) {
-            if (img.dataset.hdSrcset) img.setAttribute('srcset', img.dataset.hdSrcset);
+            img.setAttribute('src', img.dataset.hqSrc);
+        } else if (mode === 'low') {
+            // The stock src is already the smallest variant; drop the srcset so
+            // the browser can't upgrade past it. Encode quality stays normal.
+            img.removeAttribute('srcset');
+            img.setAttribute('src', img.dataset.medSrc);
+        } else {
+            if (img.dataset.medSrcset) img.setAttribute('srcset', img.dataset.medSrcset);
             else img.removeAttribute('srcset');
-            img.setAttribute('src', img.dataset.hdSrc);
+            img.setAttribute('src', img.dataset.medSrc);
         }
     });
     document.querySelectorAll('a[data-hq-href]').forEach((a) => {
-        if (mode === 'hq') {
-            if (a.dataset.hdHref === undefined) a.dataset.hdHref = a.getAttribute('href') || '';
-            a.setAttribute('href', a.dataset.hqHref);
-        } else if (a.dataset.hdHref !== undefined) {
-            a.setAttribute('href', a.dataset.hdHref);
-        }
+        if (a.dataset.medHref === undefined) a.dataset.medHref = a.getAttribute('href') || '';
+        a.setAttribute('href', mode === 'hi' ? a.dataset.hqHref : a.dataset.medHref);
     });
 }
 
