@@ -71,6 +71,13 @@
   {{- $f := "" -}}
   {{- $minW := 0 -}}
   {{- $maxW := 0 -}}
+  {{- /* Intrinsic dimensions of the full (largest) variant, when known. Emitted
+         as width/height attrs so the <img> box is sized from these rather than
+         from whichever srcset variant the browser loaded — keeps the layout
+         stable across low/med/hi and reserves space against shift. 0 when the
+         source isn't a resource we can measure (path-only siblings). */ -}}
+  {{- $fW := 0 -}}
+  {{- $fH := 0 -}}
 
   {{- if $set -}}
     {{- /* 1. sized variants -> width-descriptor srcset. Use each file's real
@@ -79,9 +86,9 @@
     {{- $seen := slice -}}
     {{- range $set -}}
       {{- $rel := path.Join $dir .name -}}
-      {{- $u := "" -}}{{- $w := .w -}}
+      {{- $u := "" -}}{{- $w := .w -}}{{- $h := 0 -}}
       {{- with $page.Resources.GetMatch $rel -}}
-        {{- $u = .RelPermalink -}}{{- $w = .Width -}}
+        {{- $u = .RelPermalink -}}{{- $w = .Width -}}{{- $h = .Height -}}
       {{- else -}}
         {{- $u = path.Join $page.RelPermalink $rel -}}
       {{- end -}}
@@ -89,13 +96,13 @@
         {{- $seen = $seen | append $w -}}
         {{- $ss = $ss | append (printf "%s %dw" $u $w) -}}
         {{- if or (eq $minW 0) (lt $w $minW) -}}{{- $minW = $w -}}{{- $p = $u -}}{{- end -}}
-        {{- if gt $w $maxW -}}{{- $maxW = $w -}}{{- $f = $u -}}{{- end -}}
+        {{- if gt $w $maxW -}}{{- $maxW = $w -}}{{- $f = $u -}}{{- $fW = $w -}}{{- $fH = $h -}}{{- end -}}
       {{- end -}}
     {{- end -}}
   {{- else if $single -}}
     {{- /* 2. single pre-generated output */ -}}
     {{- $rel := path.Join $dir $single -}}
-    {{- with $page.Resources.GetMatch $rel -}}{{- $p = .RelPermalink -}}{{- else -}}{{- $p = path.Join $page.RelPermalink $rel -}}{{- end -}}
+    {{- with $page.Resources.GetMatch $rel -}}{{- $p = .RelPermalink -}}{{- $fW = .Width -}}{{- $fH = .Height -}}{{- else -}}{{- $p = path.Join $page.RelPermalink $rel -}}{{- end -}}
     {{- $f = $p -}}
   {{- else -}}
     {{- /* 3. build-time generation from the source resource. Only raster
@@ -110,13 +117,13 @@
             {{- $r := $img.Resize (printf "%dx avif" $w) -}}
             {{- $ss = $ss | append (printf "%s %dw" $r.RelPermalink $w) -}}
             {{- if or (eq $minW 0) (lt $w $minW) -}}{{- $minW = $w -}}{{- $p = $r.RelPermalink -}}{{- end -}}
-            {{- if gt $w $maxW -}}{{- $maxW = $w -}}{{- $f = $r.RelPermalink -}}{{- end -}}
+            {{- if gt $w $maxW -}}{{- $maxW = $w -}}{{- $f = $r.RelPermalink -}}{{- $fW = $r.Width -}}{{- $fH = $r.Height -}}{{- end -}}
           {{- end -}}
         {{- end -}}
         {{- if not $p -}}{{- $p = $img.RelPermalink -}}{{- end -}}
         {{- if and $genNative (gt $img.Width $maxW) -}}
           {{- $native := $img.Resize (printf "%dx avif" $img.Width) -}}
-          {{- $maxW = $img.Width -}}{{- $f = $native.RelPermalink -}}
+          {{- $maxW = $img.Width -}}{{- $f = $native.RelPermalink -}}{{- $fW = $native.Width -}}{{- $fH = $native.Height -}}
         {{- end -}}
       {{- else -}}
         {{- $p = .RelPermalink -}}{{- $f = .RelPermalink -}}
@@ -124,13 +131,15 @@
     {{- end -}}
   {{- end -}}
 
-  {{- $results = $results | append (dict "primary" $p "srcset" $ss "full" $f) -}}
+  {{- $results = $results | append (dict "primary" $p "srcset" $ss "full" $f "w" $fW "h" $fH) -}}
 {{- end -}}
 
 {{- /* index 0 is the stock set, index 1 the `-hq` companion (empty fields when
-       absent). Returned side by side for the client-side HQ toggle. */ -}}
+       absent). Returned side by side for the client-side HQ toggle. The stock
+       set's intrinsic dimensions (w/h) describe the displayed box. */ -}}
 {{- $stock := index $results 0 -}}
 {{- $hq := index $results 1 -}}
 {{- return (dict
       "primary" $stock.primary "srcset" $stock.srcset "full" $stock.full
+      "width" $stock.w "height" $stock.h
       "hqPrimary" $hq.primary "hqSrcset" $hq.srcset "hqFull" $hq.full) -}}

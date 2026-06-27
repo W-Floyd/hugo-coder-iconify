@@ -63,6 +63,12 @@
 
 {{- $a := "" -}}
 {{- with $class -}}{{- $a = printf `%s class=%q` $a . -}}{{- end -}}
+{{- /* Intrinsic width/height of the full variant: sizes the <img> box from the
+       attributes (with the theme's max-width:100%; height:auto) rather than the
+       loaded variant, so low/med/hi share one layout and space is reserved. */ -}}
+{{- if and (gt (int $r.width) 0) (gt (int $r.height) 0) -}}
+  {{- $a = printf `%s width="%d" height="%d"` $a (int $r.width) (int $r.height) -}}
+{{- end -}}
 {{- if gt (len $r.srcset) 0 -}}
   {{- if .deferSrcset -}}
     {{- $a = printf `%s data-srcset=%q data-sizes=%q` $a (delimit $r.srcset ", ") $sizes -}}
