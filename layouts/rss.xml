@@ -2,6 +2,12 @@
   Mirrors Hugo's built-in feed. When the site param `rssFullContent` is true,
   each item's <description> carries the whole `.Content` (full-text feed);
   otherwise it falls back to `.Summary`, matching Hugo's default.
+
+  Deferred images (crossfade frames, featured images) emit a <noscript> with a
+  duplicate <img> fallback (see responsive-img.html). A browser with JS hides
+  that noscript, but feed readers render its contents alongside the live <img>,
+  doubling every such image. The live <img> already carries a usable src, so we
+  strip <noscript> blocks from the feed content.
 */ -}}
 {{- $pctx := . -}}
 {{- if .IsHome -}}{{ $pctx = .Site }}{{- end -}}
@@ -35,7 +41,9 @@
       <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
       {{- with .Site.Params.author }}<author>{{ . }}</author>{{ end }}
       <guid>{{ .Permalink }}</guid>
-      <description>{{ (cond .Site.Params.rssFullContent .Content .Summary) | transform.XMLEscape | safeHTML }}</description>
+      {{- $content := cond .Site.Params.rssFullContent .Content .Summary -}}
+      {{- $content = replaceRE `(?s)<noscript>.*?</noscript>` "" $content -}}
+      <description>{{ $content | transform.XMLEscape | safeHTML }}</description>
     </item>
     {{- end }}
   </channel>
