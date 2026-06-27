@@ -113,9 +113,26 @@
         }
       }
 
+      // Tags/categories wrap as a flex row so chips reflow cleanly on narrow
+      // screens; each separator rides inside a non-breaking .tax-item with the
+      // item it precedes, so a wrap never strands a "•" at the end of a line.
+      .tags,
+      .categories {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        column-gap: 0.6rem;
+        row-gap: 0.6rem;
+
+        .tax-item {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.6rem;
+        }
+      }
+
       .tags {
         .tag {
-          display: inline-block;
           padding: 0.3rem 0.6rem;
           background-color: var(--alt-bg-color);
           border-radius: 0.6rem;

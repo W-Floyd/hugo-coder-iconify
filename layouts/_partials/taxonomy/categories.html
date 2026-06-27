@@ -6,10 +6,12 @@
     }}
     {{ partial "icons/icon" $context }}
   </span>
+  {{- /* Each separator is glued to the link that follows it inside one
+         non-breaking .tax-item, so a wrap never orphans a "•" at a line end. */ -}}
   {{- range $index, $el := . -}}
-    {{- if gt $index 0 }}
-      <span class="separator">•</span>
-    {{- end }}
-    <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+    <span class="tax-item">
+      {{- if gt $index 0 }}<span class="separator">•</span>{{ end -}}
+      <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+    </span>
   {{- end -}}
 </div>
