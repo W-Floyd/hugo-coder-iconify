@@ -23,6 +23,11 @@
     widths        optional. Build-time generation widths. Default "200 400 600 800".
     genNative     optional. Generate a native-width variant for the full link.
                   Default true.
+    deferSrcset   optional. For eager LCP images (the featured image): emit the
+                  srcset/sizes as data-srcset/data-sizes instead of live
+                  attributes, so the preload scanner fetches only the small src
+                  and coder.js promotes the responsive set for med/hi (and
+                  leaves it small for low). Default false.
 
   Returns a dict:
     img       the built <img ...> markup (use with `safeHTML`).
@@ -58,7 +63,13 @@
 
 {{- $a := "" -}}
 {{- with $class -}}{{- $a = printf `%s class=%q` $a . -}}{{- end -}}
-{{- if gt (len $r.srcset) 0 -}}{{- $a = printf `%s srcset=%q sizes=%q` $a (delimit $r.srcset ", ") $sizes -}}{{- end -}}
+{{- if gt (len $r.srcset) 0 -}}
+  {{- if .deferSrcset -}}
+    {{- $a = printf `%s data-srcset=%q data-sizes=%q` $a (delimit $r.srcset ", ") $sizes -}}
+  {{- else -}}
+    {{- $a = printf `%s srcset=%q sizes=%q` $a (delimit $r.srcset ", ") $sizes -}}
+  {{- end -}}
+{{- end -}}
 {{- with $r.hqPrimary -}}{{- $a = printf `%s data-hq-src=%q` $a . -}}{{- end -}}
 {{- with $r.hqSrcset -}}{{- $a = printf `%s data-hq-srcset=%q` $a (delimit . ", ") -}}{{- end -}}
 {{- with $loading -}}{{- $a = printf `%s loading=%q` $a . -}}{{- end -}}

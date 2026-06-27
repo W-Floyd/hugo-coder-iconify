@@ -71,17 +71,30 @@ function currentImageMode() {
 
 // Swap the page's images (and full-size links) to the chosen mode. The stock
 // ("med") src/srcset — the as-rendered state — are stashed on first run so the
-// other modes can be derived from and restored to them exactly.
+// other modes can be derived from and restored to them exactly. An eager LCP
+// image (the featured image) ships its srcset deferred as data-srcset/-sizes so
+// the preload scanner fetches only the small src; we promote it here for med/hi
+// and leave it deferred for low, so low never triggers the larger fetch.
 function applyImageMode(mode) {
     body.dataset.imageMode = mode;
     document.querySelectorAll(HQ_IMG_SELECTOR).forEach((img) => {
         if (img.dataset.medSrc === undefined) img.dataset.medSrc = img.getAttribute('src') || '';
-        if (img.dataset.medSrcset === undefined) img.dataset.medSrcset = img.getAttribute('srcset') || '';
+        if (img.dataset.medSrcset === undefined) img.dataset.medSrcset = img.dataset.srcset || img.getAttribute('srcset') || '';
+        if (img.dataset.medSizes === undefined) img.dataset.medSizes = img.dataset.sizes || img.getAttribute('sizes') || '';
+        // Apply a srcset together with its sizes (deferred images carry no live
+        // sizes attribute), or strip both when there's nothing to apply.
+        const setSrcset = (srcset) => {
+            if (srcset) {
+                img.setAttribute('srcset', srcset);
+                if (img.dataset.medSizes) img.setAttribute('sizes', img.dataset.medSizes);
+            } else {
+                img.removeAttribute('srcset');
+            }
+        };
         if (mode === 'hi' && img.dataset.hqSrc) {
             // Clear the stock srcset when the HQ set has none, else the browser
             // would keep picking a stock candidate over the HQ src.
-            if (img.dataset.hqSrcset) img.setAttribute('srcset', img.dataset.hqSrcset);
-            else img.removeAttribute('srcset');
+            setSrcset(img.dataset.hqSrcset || '');
             img.setAttribute('src', img.dataset.hqSrc);
         } else if (mode === 'low') {
             // The stock src is already the smallest variant; drop the srcset so
@@ -89,8 +102,7 @@ function applyImageMode(mode) {
             img.removeAttribute('srcset');
             img.setAttribute('src', img.dataset.medSrc);
         } else {
-            if (img.dataset.medSrcset) img.setAttribute('srcset', img.dataset.medSrcset);
-            else img.removeAttribute('srcset');
+            setSrcset(img.dataset.medSrcset);
             img.setAttribute('src', img.dataset.medSrc);
         }
     });
