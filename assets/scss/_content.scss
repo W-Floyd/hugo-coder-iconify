@@ -12,9 +12,10 @@
     margin-top: 6.4rem;
     margin-bottom: 3.2rem;
 
-    // The generous top margin reads as dead space on a small screen; trim it.
+    // The generous top margin reads as dead space on a small screen, where the
+    // nav bar already supplies enough breathing room above the title.
     @media only screen and (max-width: 768px) {
-      margin-top: 2rem;
+      margin-top: 0;
       margin-bottom: 2rem;
     }
 
