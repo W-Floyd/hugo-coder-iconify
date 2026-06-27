@@ -18,22 +18,26 @@
     height: 3rem;
     font-size: 2rem;
     color: var(--alt-fg-color);
-    background-color: var(--alt-bg-color);
+    // Subtle-at-rest look comes from a translucent chip background, NOT element
+    // `opacity`: dimming the whole toggle also dims the foreground, and
+    // translucent text over a variable page background fails WCAG AA contrast
+    // (the "MED" label of the image-quality toggle). Keeping the foreground
+    // fully opaque preserves the ghosted chip while leaving text/icons legible.
+    background-color: color-mix(in srgb, var(--alt-bg-color) 55%, transparent);
     border-radius: 0.2rem;
-    opacity: 0.5;
     cursor: pointer;
     transition:
       color 0.05s ease-in,
-      opacity 0.05s ease-in;
+      background-color 0.05s ease-in;
 
     &:hover,
     &:focus {
       color: var(--link-color);
-      opacity: 1;
+      background-color: var(--alt-bg-color);
 
       @media only screen and (max-width: 768px) {
         color: var(--alt-fg-color);
-        opacity: 0.5;
+        background-color: color-mix(in srgb, var(--alt-bg-color) 55%, transparent);
       }
     }
 
