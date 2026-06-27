@@ -49,7 +49,14 @@
        full-bleed srcset (sizes 100vw), plus a native-width variant so the frame
        can link to the full-size image. responsive-img falls back to a site-asset
        path or absolute URL when the source is not a page resource, and carries
-       any `-hq` companion as data-* for the quality toggle (coder.js). */ -}}
+       any `-hq` companion as data-* for the quality toggle (coder.js).
+
+       srcset is deferred (data-srcset): a crossfade group stacks all its frames
+       in the viewport, so they load immediately (lazy doesn't defer them) and
+       would otherwise fetch a med candidate before coder.js could apply a
+       stored low preference — a wasteful fetch-then-downgrade. Deferring lets
+       the browser fetch only the small src; coder.js promotes the set for
+       med/hi and leaves it small for low. */ -}}
 {{- $style := "" -}}
 {{- with $objectPosition -}}{{- $style = printf "object-position: %s;" . -}}{{- end -}}
 {{- $r := partial "responsive-img.html" (dict
@@ -60,7 +67,8 @@
       "class" "scroll-crossfade__img"
       "loading" "lazy"
       "style" $style
-      "widths" "640 1280 1920 2560 3840") -}}
+      "widths" "640 1280 1920 2560 3840"
+      "deferSrcset" true) -}}
 <figure data-crossfade-frame class="scroll-crossfade__frame{{ if eq $fit "contain" }} scroll-crossfade__frame--contain{{ end }}{{ if and $caption (ne $captionPosition "center") }} scroll-crossfade__frame--cap-{{ $captionPosition }}{{ end }}">
   <a class="scroll-crossfade__link" href="{{ $r.full }}"{{ with $r.hqFull }} data-hq-href="{{ . }}"{{ end }} title="View full size">{{ $r.img | safeHTML }}</a>
   {{- with $caption }}<figcaption class="scroll-crossfade__caption{{ if ne $captionSize "medium" }} scroll-crossfade__caption--{{ $captionSize }}{{ end }}">{{ . | $.Page.RenderString }}</figcaption>{{ end -}}
