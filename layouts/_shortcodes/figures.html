@@ -1,0 +1,28 @@
+{{- /*
+  figures: lay out two (or more) {{< image >}} shortcodes side by side.
+
+  They sit in an equal-width flex row and stay side by side at every width,
+  including on mobile. The small stylesheet is emitted once per page.
+
+  `sizes` is handled automatically: each image's sizes attribute is rewritten to
+  its share of the row - 100/N vw on mobile, ~860/N px on desktop, for N images -
+  so callers never pass `sizes` themselves. (Any sizes set on an inner image is
+  overwritten.)
+
+  Usage:
+    {{< figures >}}
+    {{< image src="media/a.avif" alt="..." >}}
+    {{< image src="media/b.avif" alt="..." >}}
+    {{< /figures >}}
+*/ -}}
+{{- if not (.Page.Store.Get "figuresCSS") -}}
+<style>.figure-row{display:flex;gap:1rem;margin:1rem 0}.figure-row>a,.figure-row>p{flex:1 1 0;min-width:0;margin:0}.figure-row img{display:block;width:100%;height:auto;margin:0 !important}.figure-row .rimg-rot{margin:0 !important}</style>
+{{- .Page.Store.Set "figuresCSS" true -}}
+{{- end -}}
+{{- $inner := printf "%s" .Inner -}}
+{{- $n := len (findRE `<img[^>]*data-rimg` $inner) -}}
+{{- if gt $n 0 -}}
+  {{- $sz := printf "(max-width: 768px) %dvw, %dpx" (div 100 $n) (div 860 $n) -}}
+  {{- $inner = replaceRE `sizes="[^"]*"` (printf `sizes="%s"` $sz) $inner -}}
+{{- end -}}
+<div class="figure-row">{{ $inner | safeHTML }}</div>
