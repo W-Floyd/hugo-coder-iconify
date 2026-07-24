@@ -14,6 +14,11 @@
     page          required. The page the source is relative to.
     src           required. Source/base path (by stem; see responsive-image).
     alt           optional. Alt text. Default "".
+    title         optional. Hover-tooltip text (title attribute). Default ""
+                  (attribute omitted). Not a screen-reader substitute for alt.
+    rotate        optional. Degrees to rotate clockwise for display. 180 folds a
+                  transform into the img; 90/270 additionally wrap it so the
+                  reserved box uses the swapped aspect ratio. Default "".
     sizes         optional. `sizes` value, used only when a srcset is present.
                   Default matches the content column (see image shortcode).
     class         optional. class attribute on the <img>.
@@ -44,17 +49,43 @@
 {{- $page := .page -}}
 {{- $src := .src -}}
 {{- $alt := .alt | default "" -}}
+{{- $title := .title | default "" -}}
 {{- $sizes := .sizes | default "(max-width: 768px) 100vw, min(100vw - 40px, 860px)" -}}
 {{- $class := .class | default "" -}}
 {{- $loading := .loading | default "" -}}
 {{- $fetchpriority := .fetchpriority | default "" -}}
 {{- $style := .style | default "" -}}
+{{- $rotate := .rotate | default "" -}}
 
 {{- $r := partial "responsive-image.html" (dict
       "page" $page
       "src" $src
       "widths" (.widths | default "200 400 600 800")
       "genNative" (cond (isset . "genNative") .genNative true)) -}}
+
+{{- /* Rotation. 180 folds a transform into the img (box unchanged). A 90 or 270
+       quarter-turn also swaps the reserved layout box: the <img> is absolutely
+       centered and rotated inside a wrapper whose aspect-ratio is the swapped
+       intrinsic ratio, so it takes the right space instead of overflowing. The
+       img's own width is set to (W/H) of the wrapper so the rotated result
+       exactly fills it. Falls back to a plain in-place transform when the
+       intrinsic dimensions aren't known. */ -}}
+{{- $wrapOpen := "" -}}
+{{- $wrapClose := "" -}}
+{{- if and $rotate (ne $rotate "0") -}}
+  {{- $rw := int $r.width -}}
+  {{- $rh := int $r.height -}}
+  {{- if and (or (eq $rotate "90") (eq $rotate "270")) (gt $rw 0) (gt $rh 0) -}}
+    {{- $pct := printf "%.4f" (mul (div (float $rw) (float $rh)) 100.0) -}}
+    {{- $istyle := printf "position:absolute;top:50%%;left:50%%;margin:0;max-width:none;width:%s%%;transform:translate(-50%%,-50%%) rotate(%sdeg)" $pct $rotate -}}
+    {{- $style = cond (eq $style "") $istyle (printf "%s;%s" $style $istyle) -}}
+    {{- $wrapOpen = printf `<span class="rimg-rot" style="position:relative;display:block;width:100%%;max-width:%dpx;aspect-ratio:%d/%d;margin:2rem auto">` $rh $rh $rw -}}
+    {{- $wrapClose = "</span>" -}}
+  {{- else -}}
+    {{- $rot := printf "transform:rotate(%sdeg)" $rotate -}}
+    {{- $style = cond (eq $style "") $rot (printf "%s;%s" $style $rot) -}}
+  {{- end -}}
+{{- end -}}
 
 {{- /* Fall back to a site-asset/absolute URL when the source isn't a local
        file, so the tag always has a usable src. */ -}}
@@ -65,6 +96,7 @@
 {{- end -}}
 
 {{- $a := "" -}}
+{{- with $title -}}{{- $a = printf `%s title=%q` $a . -}}{{- end -}}
 {{- with $class -}}{{- $a = printf `%s class=%q` $a . -}}{{- end -}}
 {{- /* Intrinsic width/height of the full variant: sizes the <img> box from the
        attributes (with the theme's max-width:100%; height:auto) rather than the
@@ -85,7 +117,7 @@
 {{- with $fetchpriority -}}{{- $a = printf `%s fetchpriority=%q` $a . -}}{{- end -}}
 {{- with $style -}}{{- $a = printf `%s style=%q` $a (. | safeCSS) -}}{{- end -}}
 
-{{- $img := printf `<img data-rimg src=%q alt=%q%s decoding="async" />` $url $alt $a -}}
+{{- $img := printf `%s<img data-rimg src=%q alt=%q%s decoding="async" />%s` $wrapOpen $url $alt $a $wrapClose -}}
 
 {{- /* No-JS fallback for deferred images: coder.js never runs to promote the
        data-srcset, so without it the visitor would be stuck on the small src.
@@ -95,6 +127,7 @@
        toggling or flash in the normal JS-on path. */ -}}
 {{- if and .deferSrcset (gt (len $r.srcset) 0) -}}
   {{- $na := "" -}}
+  {{- with $title -}}{{- $na = printf `%s title=%q` $na . -}}{{- end -}}
   {{- with $class -}}{{- $na = printf `%s class=%q` $na . -}}{{- end -}}
   {{- if and (gt (int $r.width) 0) (gt (int $r.height) 0) -}}{{- $na = printf `%s width="%d" height="%d"` $na (int $r.width) (int $r.height) -}}{{- end -}}
   {{- $na = printf `%s srcset=%q sizes=%q` $na (delimit $r.srcset ", ") $sizes -}}

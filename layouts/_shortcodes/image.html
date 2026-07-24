@@ -9,6 +9,14 @@
            "media/photo.avif"). Matching is by stem; the extension only locates
            the file.
   alt      optional. Alt text.
+  title    optional. Hover-tooltip text (the <img> title attribute). Not a
+           substitute for alt: title is shown only on mouse hover, ignored on
+           touch/keyboard, and not announced by screen readers by default.
+  rotate   optional. Degrees to rotate the image clockwise for display ("90",
+           "180", "270"), via a CSS transform. A 90/270 turn also swaps the
+           reserved layout box (from the image's intrinsic dimensions) so it
+           occupies the correct space rather than overflowing; 180 rotates in
+           place.
   sizes    optional. Rarely needed. Defaults to the content-column layout (full
            width on mobile, capped at the content column on desktop). Override
            only for unusual layouts (e.g. a floated thumbnail). sizes="auto" is
@@ -40,6 +48,8 @@
       "page" $.Page
       "src" $src
       "alt" $alt
+      "title" (.Get "title" | default "")
+      "rotate" (.Get "rotate" | default "")
       "sizes" $sizes
       "class" $class
       "loading" $loading
