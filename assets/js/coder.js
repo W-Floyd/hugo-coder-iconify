@@ -161,6 +161,156 @@ function waitForElm(selector) {
     });
 }
 
+// Footnote hover previews: hovering (or keyboard-focusing) a footnote
+// reference in the body pops up the note's text next to it, so a reader can
+// take the aside without losing their place and scrolling to the bottom of the
+// page and back.
+//
+// Purely an enhancement layered over Goldmark's stock markup — the reference is
+// still a plain in-page link to the note, which is what happens with JS off, on
+// a touch screen, or in the RSS feed. Content is cloned live from the rendered
+// note, so nothing is duplicated in the served HTML.
+(function () {
+    const refs = document.querySelectorAll('a.footnote-ref');
+    if (!refs.length) return;
+
+    // Hover previews need a hovering pointer. On a touch screen there is no
+    // hover state to speak of and a tap should keep jumping to the note, as it
+    // always has.
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    const GAP = 8; // px between the bubble and the reference / viewport edge
+    const HIDE_DELAY = 120; // grace period to let the pointer cross the gap
+
+    let popup = null; // the single live bubble, if any
+    let anchor = null; // the reference it belongs to
+    let hideTimer = null;
+    let ticking = false;
+
+    function cancelHide() {
+        clearTimeout(hideTimer);
+        hideTimer = null;
+    }
+
+    function hide() {
+        cancelHide();
+        if (popup) popup.remove();
+        popup = null;
+        anchor = null;
+    }
+
+    function scheduleHide() {
+        cancelHide();
+        hideTimer = setTimeout(hide, HIDE_DELAY);
+    }
+
+    function holdsFocus() {
+        return !!anchor && (anchor === document.activeElement
+            || (popup && popup.contains(document.activeElement)));
+    }
+
+    // The pointer wandering off shouldn't close a bubble the keyboard is using.
+    function scheduleHideFromPointer() {
+        if (!holdsFocus()) scheduleHide();
+    }
+
+    // Place the bubble above the reference, flipping below when it would run off
+    // the top, and clamp it inside the viewport horizontally. --arrow-x keeps
+    // the arrow pointing at the reference even once the bubble has been clamped.
+    function position() {
+        if (!popup) return;
+        const ref = anchor.getBoundingClientRect();
+        const box = popup.getBoundingClientRect();
+        const center = ref.left + ref.width / 2;
+        const left = Math.min(
+            Math.max(GAP, center - box.width / 2),
+            Math.max(GAP, window.innerWidth - box.width - GAP)
+        );
+        const below = ref.top - box.height - GAP < 0;
+        popup.classList.toggle('footnote-popup--below', below);
+        popup.style.left = left + 'px';
+        popup.style.top = (below ? ref.bottom + GAP : ref.top - box.height - GAP) + 'px';
+        popup.style.setProperty('--arrow-x', (center - left) + 'px');
+    }
+
+    function show(ref) {
+        cancelHide();
+        if (anchor === ref) return;
+        hide();
+
+        // The reference's href is the note's element id (`#fn:1`).
+        const note = document.getElementById(decodeURIComponent((ref.getAttribute('href') || '').slice(1)));
+        if (!note) return;
+
+        popup = document.createElement('span');
+        popup.className = 'footnote-popup';
+        popup.setAttribute('role', 'note');
+        // Snapshot the clone's children before moving them: childNodes is live,
+        // so appending straight from it would skip every other node.
+        for (const child of Array.from(note.cloneNode(true).childNodes)) popup.appendChild(child);
+        // Drop the "jump back to the reference" arrow — meaningless in a bubble
+        // anchored to that very reference — and any cloned ids, which would
+        // otherwise duplicate the ones already in the document.
+        popup.querySelectorAll('.footnote-backref').forEach((a) => a.remove());
+        popup.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
+
+        // Inserted after the <sup> rather than inside it: the bubble then
+        // inherits body copy sizing instead of superscript sizing, and any links
+        // in the note fall in tab order right after the reference.
+        (ref.parentElement || ref).insertAdjacentElement('afterend', popup);
+        anchor = ref;
+        position();
+
+        popup.addEventListener('mouseenter', cancelHide);
+        popup.addEventListener('mouseleave', scheduleHideFromPointer);
+    }
+
+    for (const ref of refs) {
+        ref.addEventListener('mouseenter', () => show(ref));
+        ref.addEventListener('mouseleave', scheduleHideFromPointer);
+        ref.addEventListener('focus', () => show(ref));
+        // Following the link scrolls to the note itself; the preview has done
+        // its job.
+        ref.addEventListener('click', hide);
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') hide();
+    });
+
+    // Dismiss once focus leaves the reference-and-bubble pair — but not while it
+    // merely moves between them, which is what tabbing from the reference into a
+    // link inside the bubble does. relatedTarget is the element gaining focus;
+    // reading document.activeElement here would still see the old one and pull
+    // the bubble out from under the keyboard.
+    document.addEventListener('focusout', (e) => {
+        if (!popup) return;
+        if (e.target !== anchor && !popup.contains(e.target)) return;
+        const to = e.relatedTarget;
+        if (to && (to === anchor || popup.contains(to))) return;
+        scheduleHide();
+    });
+
+    // Fixed positioning doesn't follow the page, so track scroll and resize —
+    // and give up once the reference itself has left the viewport.
+    function reposition() {
+        ticking = false;
+        if (!popup) return;
+        const ref = anchor.getBoundingClientRect();
+        if (ref.bottom < 0 || ref.top > window.innerHeight) hide();
+        else position();
+    }
+
+    function onViewportChange() {
+        if (!popup || ticking) return;
+        ticking = true;
+        requestAnimationFrame(reposition);
+    }
+
+    window.addEventListener('scroll', onViewportChange, { passive: true });
+    window.addEventListener('resize', onViewportChange, { passive: true });
+})();
+
 // Immersive view: scroll-driven `.scroll-crossfade` image sequences and the
 // full-viewport header wallpaper (`body.has-header-wallpaper`). For crossfades,
 // each image layer's opacity is set from the section's scroll progress so one

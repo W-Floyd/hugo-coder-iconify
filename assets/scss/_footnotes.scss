@@ -1,0 +1,85 @@
+// Footnote hover previews.
+//
+// The preview bubble is created by coder.js and inserted next to the
+// reference's <sup>, so any links in the note fall in natural tab order right
+// after the reference. It is position: fixed so no ancestor's overflow can clip
+// it; coder.js supplies the coordinates and --arrow-x (the arrow's offset from
+// the bubble's left edge, so it keeps pointing at the reference even when the
+// bubble has been clamped against a viewport edge).
+//
+// Sizing and styling are all stated outright rather than inherited: a reference
+// can sit inside a <sup> in a <cite> in a blockquote, and inheriting from that
+// chain would render the note in tiny italics. Note the 62.5% root font size
+// from _base.scss — 1rem is 10px here, and body copy is 18px.
+.footnote-popup {
+  position: fixed;
+  z-index: 20;
+  display: block;
+  box-sizing: border-box;
+  // Interpolated so Sass emits CSS min() rather than trying to evaluate it.
+  max-width: #{"min(36rem, calc(100vw - 2rem))"};
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--darker-alt-bg-color);
+  border-radius: 0.4rem;
+  // The raised-surface colour rather than the page background, so the bubble
+  // reads as floating above the text in both schemes.
+  background-color: var(--alt-bg-color);
+  box-shadow: 0 0.4rem 1.2rem rgba(0, 0, 0, 0.2);
+  color: var(--fg-color);
+  font-size: 1.6rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: left;
+
+  // Footnote bodies are wrapped paragraphs; flatten their margins so the
+  // bubble hugs its content.
+  p {
+    margin: 0;
+
+    + p {
+      margin-top: 0.8rem;
+    }
+  }
+
+  // The arrow: a rotated square borrowing the bubble's own border and fill,
+  // with the two edges facing into the bubble left blank. Default placement is
+  // above the reference, so it hangs off the bottom edge.
+  &::after {
+    content: "";
+    position: absolute;
+    left: var(--arrow-x, 50%);
+    bottom: -0.6rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-left: -0.6rem;
+    transform: rotate(45deg);
+    background-color: var(--alt-bg-color);
+    border: 1px solid var(--darker-alt-bg-color);
+    border-top: 0;
+    border-left: 0;
+  }
+
+  // Flipped below the reference when there isn't room above.
+  &.footnote-popup--below::after {
+    top: -0.6rem;
+    bottom: auto;
+    border: 1px solid var(--darker-alt-bg-color);
+    border-bottom: 0;
+    border-right: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: footnote-popup-in 0.12s ease-out;
+  }
+}
+
+@keyframes footnote-popup-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
