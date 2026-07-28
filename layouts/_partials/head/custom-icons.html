@@ -2,7 +2,12 @@
 <link rel="icon" type="image/png" href="{{ .Site.Params.favicon_32 | default "/images/favicon-32x32.png" | relURL }}" sizes="32x32">
 <link rel="icon" type="image/png" href="{{ .Site.Params.favicon_16 | default "/images/favicon-16x16.png" | relURL }}" sizes="16x16">
 
-<link rel="apple-touch-icon" href="{{ .Site.Params.touchicon | default "/images/apple-touch-icon.png" | relURL }}">
+{{/* One tag, not two: both previously pointed at the same URL. `sizes` is kept
+     rather than the bare form because it describes the file accurately (180x180
+     is the single size Apple asks for) and lets a client rank this against the
+     other declared icons without fetching it -- Firefox in particular treats the
+     largest declared icon as a rich-icon candidate for its New Tab tiles, so it
+     pulls this file on an ordinary page visit. */}}
 <link rel="apple-touch-icon" sizes="180x180" href="{{ .Site.Params.touchicon | default "/images/apple-touch-icon.png" | relURL }}">
 
 <link rel="manifest" href="{{ .Site.Params.manifest | default "/site.webmanifest" | relURL }}">
