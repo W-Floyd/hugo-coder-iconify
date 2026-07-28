@@ -28,6 +28,28 @@
     widths        optional. Build-time generation widths. Default "200 400 600 800".
     genNative     optional. Generate a native-width variant for the full link.
                   Default true.
+    pixelated     optional. Enlarge as crisp blocks rather than smoothing
+                  (image-rendering: pixelated), for pixel-level comparisons.
+                  Adds the `pixelated` class and emits the rule once per page.
+                  Lets a figure ship at native scale and be magnified by CSS: no
+                  extra bytes, and the zoom follows the reader's layout and
+                  device pixel ratio. Normally paired with pin, since a
+                  resampled srcset rung would defeat it. Default false.
+    pin           optional. Serve exactly one file, exactly as encoded: the
+                  full-size variant as a plain src, with no srcset/sizes and no
+                  data-hq-* hooks. Nothing the browser or the LOW/MED/HI toggle
+                  does can substitute a different file.
+
+                  For figures whose subject *is* the encoding. Showing
+                  `foo.avif` beside `foo-hq.avif`, the toggle would swap the
+                  first for the second and make them identical; and any srcset
+                  rung the browser picked would be a *resampled* image, which
+                  blurs the very pixel structure such a figure exists to show.
+                  Pair it with a native-scale source and CSS enlargement
+                  (image-rendering: pixelated) rather than baking in a zoom.
+
+                  Note this always sends the full-size file, so pin only images
+                  small enough that no ladder was wanted anyway. Default false.
     deferSrcset   optional. For eager/in-view images (featured, crossfade
                   frames): emit the srcset/sizes as data-srcset/data-sizes
                   instead of live attributes, so the preload scanner fetches
@@ -56,6 +78,11 @@
 {{- $fetchpriority := .fetchpriority | default "" -}}
 {{- $style := .style | default "" -}}
 {{- $rotate := .rotate | default "" -}}
+{{- $pin := .pin | default false -}}
+{{- $pixelated := .pixelated | default false -}}
+{{- if $pixelated -}}
+  {{- $class = trim (printf "%s pixelated" $class) " " -}}
+{{- end -}}
 
 {{- $r := partial "responsive-image.html" (dict
       "page" $page
@@ -90,6 +117,11 @@
 {{- /* Fall back to a site-asset/absolute URL when the source isn't a local
        file, so the tag always has a usable src. */ -}}
 {{- $url := $r.primary -}}
+{{- /* Pinned images resolve to the full-size variant: with no srcset to upgrade
+       from, the small primary would be all the browser ever got. */ -}}
+{{- if and $pin $r.full -}}
+  {{- $url = $r.full -}}
+{{- end -}}
 {{- if not $url -}}
   {{- $parsed := urls.Parse $src -}}
   {{- $url = cond (ne $parsed.Scheme "") $src ($src | relURL) -}}
@@ -104,20 +136,30 @@
 {{- if and (gt (int $r.width) 0) (gt (int $r.height) 0) -}}
   {{- $a = printf `%s width="%d" height="%d"` $a (int $r.width) (int $r.height) -}}
 {{- end -}}
-{{- if gt (len $r.srcset) 0 -}}
+{{- if and (gt (len $r.srcset) 0) (not $pin) -}}
   {{- if .deferSrcset -}}
     {{- $a = printf `%s data-srcset=%q data-sizes=%q` $a (delimit $r.srcset ", ") $sizes -}}
   {{- else -}}
     {{- $a = printf `%s srcset=%q sizes=%q` $a (delimit $r.srcset ", ") $sizes -}}
   {{- end -}}
 {{- end -}}
-{{- with $r.hqPrimary -}}{{- $a = printf `%s data-hq-src=%q` $a . -}}{{- end -}}
-{{- with $r.hqSrcset -}}{{- $a = printf `%s data-hq-srcset=%q` $a (delimit . ", ") -}}{{- end -}}
+{{- if not $pin -}}
+  {{- with $r.hqPrimary -}}{{- $a = printf `%s data-hq-src=%q` $a . -}}{{- end -}}
+  {{- with $r.hqSrcset -}}{{- $a = printf `%s data-hq-srcset=%q` $a (delimit . ", ") -}}{{- end -}}
+{{- end -}}
 {{- with $loading -}}{{- $a = printf `%s loading=%q` $a . -}}{{- end -}}
 {{- with $fetchpriority -}}{{- $a = printf `%s fetchpriority=%q` $a . -}}{{- end -}}
 {{- with $style -}}{{- $a = printf `%s style=%q` $a (. | safeCSS) -}}{{- end -}}
 
 {{- $img := printf `%s<img data-rimg src=%q alt=%q%s decoding="async" />%s` $wrapOpen $url $alt $a $wrapClose -}}
+
+{{- /* Prepend the pixelated rule, once per page. It has to be part of the
+       returned markup rather than printed: this partial returns a dict, so
+       printed output would be thrown away. */ -}}
+{{- if and $pixelated (not ($page.Store.Get "pixelatedCSS")) -}}
+  {{- $img = printf `<style>img.pixelated{image-rendering:pixelated}</style>%s` $img -}}
+  {{- $page.Store.Set "pixelatedCSS" true -}}
+{{- end -}}
 
 {{- /* No-JS fallback for deferred images: coder.js never runs to promote the
        data-srcset, so without it the visitor would be stuck on the small src.
@@ -125,7 +167,10 @@
        that hides the deferred placeholder. Both only take effect when the
        browser has JS off (noscript isn't rendered otherwise), so there's no
        toggling or flash in the normal JS-on path. */ -}}
-{{- if and .deferSrcset (gt (len $r.srcset) 0) -}}
+{{- /* Not for pinned images: this fallback carries a live srcset, which is the
+       one thing pin exists to prevent. Pinned images need no fallback anyway —
+       their src is already the full-size file, with nothing to promote. */ -}}
+{{- if and .deferSrcset (gt (len $r.srcset) 0) (not $pin) -}}
   {{- $na := "" -}}
   {{- with $title -}}{{- $na = printf `%s title=%q` $na . -}}{{- end -}}
   {{- with $class -}}{{- $na = printf `%s class=%q` $na . -}}{{- end -}}

@@ -29,6 +29,23 @@
            optional. e.g. "high".
   link     optional. "true" (default) wraps the image in a link to the 100%
            variant; "false" emits a bare <img>.
+  pixelated
+           optional. "true" enlarges the image as crisp blocks rather than
+           smoothing it (image-rendering: pixelated), for pixel-level
+           comparisons. Lets a figure ship at native scale and be magnified by
+           CSS, which costs nothing on the wire and follows the reader's layout
+           and device pixel ratio instead of a zoom chosen at build time.
+           Normally paired with pin="true", since a resampled srcset rung would
+           defeat it. Handled by responsive-img, so every image surface that
+           uses that partial gets it; the rule is emitted once per page, only
+           where used.
+  pin      optional. "true" pins the delivered encode: the LOW/MED/HI quality
+           toggle skips this image and it always renders as encoded. Use for
+           figures whose subject *is* the difference between the encodes — put
+           `foo.avif` and `foo-hq.avif` side by side without pinning and the
+           toggle swaps the first for the second, making both identical. Also
+           drops the full-size link's own hq target, so the linked image matches
+           what was on the page. Default "false".
   widths   optional. Space-separated widths for the build-time generation
            fallback. Default "200 400 600 800".
 */ -}}
@@ -44,6 +61,8 @@
        unreliable with the preload scanner. */ -}}
 {{- $sizes := .Get "sizes" | default "(max-width: 768px) 100vw, min(100vw - 40px, 860px)" -}}
 {{- $link := not (in (slice "false" "0" "") (.Get "link" | default "true")) -}}
+{{- $pin := in (slice "true" "1") (.Get "pin" | default "false") -}}
+{{- $pixelated := in (slice "true" "1") (.Get "pixelated" | default "false") -}}
 
 {{- $r := partial "responsive-img.html" (dict
       "page" $.Page
@@ -56,12 +75,14 @@
       "loading" $loading
       "fetchpriority" $fetchpriority
       "widths" (.Get "widths" | default "200 400 600 800")
+      "pin" $pin
+      "pixelated" $pixelated
       "genNative" $link) -}}
 
 {{- if not $r.primary -}}
   {{- warnf "image: no file found for %q" $src -}}
 {{- else if and $link $r.full -}}
-<a href="{{ $r.full }}"{{ with $r.hqFull }} data-hq-href="{{ . }}"{{ end }} target="_blank" rel="noopener" class="image-full">{{ $r.img | safeHTML }}</a>
+<a href="{{ $r.full }}"{{ if not $pin }}{{ with $r.hqFull }} data-hq-href="{{ . }}"{{ end }}{{ end }} target="_blank" rel="noopener" class="image-full">{{ $r.img | safeHTML }}</a>
 {{- else -}}
 {{ $r.img | safeHTML }}
 {{- end -}}
