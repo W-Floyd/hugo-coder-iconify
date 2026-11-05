@@ -67,6 +67,7 @@
           {{ end }}
           <a href="{{ $r.full }}"{{ with $r.hqFull }} data-hq-href="{{ . }}"{{ end }} target="_blank" rel="noopener" class="image-full" title="View full size">{{ $img | safeHTML }}</a>
         {{ end }}
+        {{ partial "posts/before-content.html" . }}
         {{ .Content }}
       </div>
 
