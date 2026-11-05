@@ -369,6 +369,8 @@ These are the front matter variables used by `hugo-coder` theme.
 | author           | list   | No       | Add author to this post.                           |         | `["John Doe"]`                                                                  |
 | externalLink     | string | No       | Link to an external post.                          |         | `"https://github.com/luizdepra/hugo-coder/wiki"`                                |
 | featuredImage    | string | No       | Link/path to add an image below post metadata.     |         | `"https://github.com/luizdepra/hugo-coder/blob/master/images/screenshot.png"`   |
+| featuredImageCrop | string | No      | Crop the featured image to this aspect ratio.      |         | `"16/9"`                                                                        |
+| featuredImagePosition | string | No  | Focal point of the crop (CSS object-position).     | `"50% 50%"` | `"50% 30%"`                                                                 |
 | disableComments  | bool   | No       | If true, comments are disabled.                    | `false` | `true` or `false`                                                               |
 | canonicalUrl     | string | No       | Link to override <link rel="canonical"/> in <head> | `false` | `"https://my-company.com/blog/my-blog-post-that-I-repost-without-hurtiong-seo"` |
 
