@@ -2,8 +2,7 @@
 authors = ["Lone Coder"]
 title = "Math Typesetting"
 date = "2023-07-10"
-description = "A brief guide to setup KaTeX"
-math = true
+description = "Math rendered to MathML at build time"
 tags = [
     "hugo",
     "markdown",
@@ -17,45 +16,25 @@ categories = [
 series = ["Theme Demo"]
 +++
 
-Mathematical notation in a Hugo project can be enabled by using third party JavaScript libraries.
+Math is rendered to MathML when the site is built, so no JavaScript, stylesheet or font ships to the reader.
 
 <!--more-->
 
-In this example we will be using [KaTeX](https://katex.org/)
+Enable Goldmark's passthrough extension in the site config. The theme's render hook handles the rest:
 
--   Create a partial under `/layouts/partials/math.html`
--   Within this partial reference the [Auto-render Extension](https://katex.org/docs/autorender.html) or host these scripts locally.
--   Include the partial in your templates like so:
-
-```bash
-{{ if or .Params.math .Site.Params.math }}
-{{ partial "math.html" . }}
-{{ end }}
+```toml
+[markup.goldmark.extensions.passthrough]
+enable = true
+[markup.goldmark.extensions.passthrough.delimiters]
+block = [['\[', '\]'], ['$$', '$$']]
+inline = [['\(', '\)']]
 ```
 
--   To enable KaTeX globally set the parameter `math` to `true` in a project's configuration
--   To enable KaTeX on a per page basis include the parameter `math: true` in content files
-
-**Note:** Use the online reference of [Supported TeX Functions](https://katex.org/docs/supported.html)
-
-{{< math.inline >}}
-{{ if or .Page.Params.math .Site.Params.math }}
-
-<!-- KaTeX -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
-{{ end }}
-{{</ math.inline >}}
+Adding `['$', '$']` to `inline` also works, but then every literal dollar sign in prose has to be escaped.
 
 ### Examples
 
-{{< math.inline >}}
-
-<p>
 Inline math: \(\varphi = \dfrac{1+\sqrt5}{2}= 1.6180339887…\)
-</p>
-{{</ math.inline >}}
 
 Block math:
 

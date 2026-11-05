@@ -145,8 +145,6 @@ These are all the parameters used by `hugo-coder` theme.
 | maxSeeAlsoItems         | number | No       | Series see also post count                                               | `5`                               | `10`                                              |
 | commit                  | string | No       | Show the last git commit in the footer                                   |                                   | `"https://github.com/luizdepra/hugo-coder/tree/"` |
 | rtl                     | bool   | No       | Enable the Right To Left mode.                                           | `false`                           | `true` or `false`                                 |
-| math                    | bool   | No       | Enable MathJax Module and add JS into your site.                         | `false`                           | `true` or `false`                                 |
-| katex                   | bool   | No       | Enable KaTeX for all content types.                                      | `false`                           | `true` or `false`                                 |
 | colorScheme             | string | No       | Specify light/dark colorscheme                                           | `"auto"`                          | `"auto"` or `"light"` or `"dark"`                 |
 | hideColorSchemeToggle   | bool   | No       | If true, hides the color scheme toggle                                   | `false`                           | `true` or `false`                                 |
 | customCSS               | list   | No       | Add extra CSS files to the website.                                      | []                                | `["css/extra-style.css"]`                         |
@@ -371,8 +369,6 @@ These are the front matter variables used by `hugo-coder` theme.
 | author           | list   | No       | Add author to this post.                           |         | `["John Doe"]`                                                                  |
 | externalLink     | string | No       | Link to an external post.                          |         | `"https://github.com/luizdepra/hugo-coder/wiki"`                                |
 | featuredImage    | string | No       | Link/path to add an image below post metadata.     |         | `"https://github.com/luizdepra/hugo-coder/blob/master/images/screenshot.png"`   |
-| math             | bool   | No       | If true, MathJax is enabled only for this post.    | `false` | `true` or `false`                                                               |
-| katex            | bool   | No       | If true, KaTeX is enabled only for this post.      | `false` | `true` or `false`                                                               |
 | disableComments  | bool   | No       | If true, comments are disabled.                    | `false` | `true` or `false`                                                               |
 | canonicalUrl     | string | No       | Link to override <link rel="canonical"/> in <head> | `false` | `"https://my-company.com/blog/my-blog-post-that-I-repost-without-hurtiong-seo"` |
 
