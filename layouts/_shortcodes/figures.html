@@ -12,6 +12,11 @@
   mobile and ~860px on desktop) so callers never pass `sizes` themselves. (Any
   sizes set on an inner image is overwritten.)
 
+  Any other shortcode can be an item: wrap its output in a <div data-figure-item>
+  and close it with <!--/figure-item-->, the item's end marker (so inner divs are
+  fine). Emit the marker with safeHTML: html/template drops literal comments. Width comes from an
+  `aspect-ratio:W/H` in its style, else from its <img> width/height.
+
   Usage:
     {{< figures >}}
     {{< image src="media/a.avif" alt="..." >}}
@@ -19,13 +24,12 @@
     {{< /figures >}}
 */ -}}
 {{- if or hugo.IsServer (not (.Page.Store.Get "figuresCSS")) -}}
-<style>.figure-row{display:flex;gap:1rem;margin:1rem 0;align-items:flex-start}.figure-row>*{min-width:0;margin:0}.figure-row a{display:block}.figure-row img{display:block;width:100%;height:auto;margin:0 !important}.figure-row .rimg-rot{margin:0 !important;max-width:none !important}</style>
+<style>.figure-row{display:flex;gap:1rem;margin:1rem 0;align-items:flex-start}.figure-row>*{min-width:0;margin:0}.figure-row a{display:block}.figure-row img{display:block;width:100%;height:auto;margin:0 !important}.figure-row .rimg-rot{margin:0 !important;max-width:none !important}.figure-row [data-figure-item]{margin:0}</style>
 {{- .Page.Store.Set "figuresCSS" true -}}
 {{- end -}}
 {{- $raw := printf "%s" .Inner -}}
-{{- $clean := replaceRE `(?s)</?p[^>]*>` "" $raw -}}
-{{- $itemPattern := `(?s)(?:<a\b[^>]*>.*?</a>|<span class="rimg-rot"[^>]*>.*?</span>|<img\b[^>]*>(?:<noscript>.*?</noscript>)?)` -}}
-{{- $items := findRE $itemPattern $clean -}}
+{{- $itemPattern := `(?s)(?:<div\b[^>]*\bdata-figure-item\b[^>]*>.*?<!--/figure-item-->|<a\b[^>]*>.*?</a>|<span class="rimg-rot"[^>]*>.*?</span>|<img\b[^>]*>(?:<noscript>.*?</noscript>)?)` -}}
+{{- $items := findRE $itemPattern $raw -}}
 {{- $count := len $items -}}
 {{- if eq $count 0 -}}
 <div class="figure-row">{{ $raw | safeHTML }}</div>
