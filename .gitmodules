@@ -1,0 +1,4 @@
+[submodule "third_party/hls.js"]
+	path = third_party/hls.js
+	url = https://github.com/W-Floyd/hls.js.git
+	branch = modular-core

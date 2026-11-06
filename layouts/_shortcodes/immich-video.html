@@ -1,7 +1,7 @@
 {{- /*
   immich-video: click-to-load video from a public Immich shared link. Nothing
   but a small poster is fetched until the reader clicks, then it streams via
-  Immich's realtime-transcode HLS (the theme's bundled hls.js light build,
+  Immich's realtime-transcode HLS (the theme's minimal hls.js build from `make hls`,
   loaded on click; Immich's variant playlists need ?slug=, which native HLS
   players can't add),
   falling back to the stored MP4 where hls.js is unsupported or errors. The
@@ -140,6 +140,6 @@ h.on(Hls.Events.MANIFEST_PARSED,function(){h.currentLevel=pick(h.levels,t);v.imm
 h.on(Hls.Events.ERROR,function(_,r){if(r.fatal){h.destroy();v.immichHls=null;mp4()}});
 h.loadSource(d.hls);h.attachMedia(v);v.play().catch(function(){})}
 if(window.Hls)return go();
-var s=document.createElement("script");s.src={{ (resources.Get "js/hls.light.min.js" | fingerprint).RelPermalink }};s.onload=go;s.onerror=mp4;document.head.appendChild(s)})}
+var s=document.createElement("script");s.src={{ (resources.Get "js/hls.minimal.min.js" | fingerprint).RelPermalink }};s.onload=go;s.onerror=mp4;document.head.appendChild(s)})}
 </script>
 <button type="button" class="iv-load" data-slug="{{ $slug }}"{{ range $k := slice "480" "720" "1080" }}{{ with index $bw $k }}{{ if gt $dur 0.0 }}{{ $mb := div (mul . $dur) 8000000.0 }} data-s{{ $k }}="{{ if lt $mb 10.0 }}{{ printf "%.1f" $mb }}{{ else }}{{ printf "%.0f" $mb }}{{ end }} MB"{{ end }}{{ end }}{{ end }} data-hls="{{ $base }}/video/stream/main.m3u8?slug={{ $slug }}" data-src="{{ $base }}/video/playback?slug={{ $slug }}"{{ if $muted }} data-muted="true"{{ end }}>{{ with .Get "poster" }}<img src="{{ $base }}/thumbnail?size={{ . }}&slug={{ $slug }}" alt="" loading="lazy"{{ with $.Get "ratio" }} style="aspect-ratio:{{ . | safeCSS }};object-fit:cover"{{ end }}>{{ else }}<img data-thumb="{{ $base }}/thumbnail?size=thumbnail&slug={{ $slug }}" data-preview="{{ $base }}/thumbnail?size=preview&slug={{ $slug }}" alt="" loading="lazy"{{ with $.Get "ratio" }} style="aspect-ratio:{{ . | safeCSS }};object-fit:cover"{{ end }}>{{ end }}<img data-rimg src="data:," alt="" hidden width="0" height="0"><span>▶ Load video<small></small></span></button></div>{{ "<!--/figure-item-->" | safeHTML }}
