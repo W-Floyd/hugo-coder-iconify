@@ -7,3 +7,14 @@ min = "0.124.0"
 path = 'github.com/hugomods/icons'
 [[module.imports]]
 path = 'github.com/hugomods/icons/vendors/mdi'
+[[module.imports]]
+# uPlot for the uplot shortcode, pinned to the 1.6.32 tag's commit: its tags
+# lack the v prefix Go modules need. Only the browser build is mounted.
+path = 'github.com/leeoniya/uPlot'
+version = 'v0.0.0-20250314024639-e995b061e9fc'
+[[module.imports.mounts]]
+source = 'dist/uPlot.iife.min.js'
+target = 'assets/js/uplot.js'
+[[module.imports.mounts]]
+source = 'dist/uPlot.min.css'
+target = 'assets/css/uplot.css'

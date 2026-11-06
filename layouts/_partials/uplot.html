@@ -1,0 +1,13 @@
+{{- /*
+  Assets for the uplot shortcode, included from baseof on pages that use it.
+  uPlot itself is a module import (hugo.toml), mounted into assets/.
+*/ -}}
+{{- range slice "css/uplot.css" "css/uplot-chart.css" }}
+  {{- $css := resources.Get . | resources.Minify | resources.Fingerprint }}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
+{{- end }}
+{{- /* Deferred, in order: uplot-chart.js waits for DOMContentLoaded, which runs after both. */}}
+{{- range slice "js/uplot.js" "js/uplot-chart.js" }}
+  {{- $js := resources.Get . | resources.Minify | resources.Fingerprint }}
+<script defer src="{{ $js.RelPermalink }}" integrity="{{ $js.Data.Integrity }}"></script>
+{{- end }}

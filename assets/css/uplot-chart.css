@@ -1,0 +1,7 @@
+.uplot-chart { margin: 2rem 0; }
+.uplot-chart__plot { min-height: 320px; }
+.uplot-chart figcaption { text-align: center; font-size: 0.9em; }
+/* uPlot's legend is a <table>; keep the theme's table styling off it. */
+.uplot-chart .u-legend, .uplot-chart .u-legend :is(tr, th, td) {
+  border: 0; background: none; padding: 0 0.25em;
+}
