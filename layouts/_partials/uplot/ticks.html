@@ -1,0 +1,19 @@
+{{- /*
+  Round tick spacing (1, 2 or 5 × 10^k) for about n intervals over min..max,
+  as uPlot picks them. Context: dict "min" "max" "n". Returns dict "lo" "hi"
+  (min and max widened to whole steps), "step", "dec" (decimals a label needs).
+*/ -}}
+{{- $min := float .min }}{{ $max := float .max }}
+{{- if eq $min $max }}{{ $min = sub $min 1. }}{{ $max = add $max 1. }}{{ end }}
+{{- $ln10 := math.Log 10 }}
+{{- $raw := div (sub $max $min) (float .n) }}
+{{- /* The epsilons absorb float error at exact powers and multiples. */}}
+{{- $mag := math.Pow 10 (math.Floor (add (div (math.Log $raw) $ln10) 1e-9)) }}
+{{- $norm := div $raw $mag }}
+{{- $m := 10. }}
+{{- if lt $norm 1.5 }}{{ $m = 1. }}{{ else if lt $norm 3. }}{{ $m = 2. }}{{ else if lt $norm 7. }}{{ $m = 5. }}{{ end }}
+{{- $step := mul $m $mag }}
+{{- $lo := mul (math.Floor (add (div $min $step) 1e-9)) $step }}
+{{- $hi := mul (math.Ceil (sub (div $max $step) 1e-9)) $step }}
+{{- $dec := int (math.Max 0 (mul -1 (math.Floor (add (div (math.Log $step) $ln10) 1e-9)))) }}
+{{- return dict "lo" $lo "hi" $hi "step" $step "dec" $dec }}

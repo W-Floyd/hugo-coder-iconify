@@ -1,0 +1,32 @@
+{{- /*
+  The uplot shortcode's data and options (see _shortcodes/uplot.html), shared
+  by its page and feed variants. Context: the shortcode. Returns
+  dict "opts" "columns" "src", or nothing when src is missing.
+*/ -}}
+{{- $ret := dict }}
+{{- $src := .Get "src" }}
+{{- $res := .Page.Resources.Get $src }}
+{{- /* Only a warning: generators that build the site to produce src run before it exists. */}}
+{{- if not $res }}{{ warnf "uplot: %q not found in %s" $src .Page.File.Path }}{{ else }}
+{{- $data := $res | transform.Unmarshal }}
+{{- $x := .Get "x" }}
+{{- $keys := slice $x }}
+{{- range split (.Get "y") "," }}{{ $keys = $keys | append (trim . " ") }}{{ end }}
+{{- $columns := dict }}
+{{- $present := slice }}
+{{- range $k := $keys }}
+  {{- with index $data $k }}
+    {{- $columns = merge $columns (dict $k .) }}{{ $present = $present | append $k }}
+  {{- else }}{{ warnf "uplot: no %q in %s" $k $src }}{{ end }}
+{{- end }}
+{{- $opts := dict
+  "logx" (.Get "logx" | default false)
+  "lines" (.Get "lines" | default true)
+  "xlabel" (.Get "xlabel" | default $x)
+  "ylabel" (.Get "ylabel" | default "")
+  "keys" $present
+  "hidden" (apply (split (.Get "hidden" | default "") ",") "trim" "." " ")
+}}
+{{- $ret = dict "opts" $opts "columns" $columns "src" $src }}
+{{- end }}
+{{- return $ret }}

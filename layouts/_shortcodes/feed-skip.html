@@ -1,0 +1,11 @@
+{{- /*
+  Keeps its contents out of feeds, replacing them there with a notice giving
+  the reason (feed-skip.rss.xml):
+
+    {{< feed-skip "Live table, measured by your browser" >}}{{< pageweight >}}{{< /feed-skip >}}
+
+  Inner is passed through raw, not as Markdown: Markdown rendering would drop
+  the HTML of nested shortcodes unless goldmark's unsafe is on. Wrap shortcodes
+  or HTML; prose stays outside.
+*/ -}}
+{{- .Inner -}}

@@ -1,0 +1,20 @@
+{{- /*
+  The player needs JavaScript, so feeds get a plain <video> of Immich's MP4
+  playback endpoint, with a link for readers that strip <video>. A URL without
+  /photos/<id> needs the share's asset list, as in immich-video.html. Same
+  data-figure-item wrapper, so {{< figures >}} keeps it.
+*/ -}}
+{{- $url := .Get "url" -}}
+{{- $m := index (findRESubmatch `^(https?://[^/]+)/share/([^/?#]+)(?:/photos/([^/?#]+))?` $url 1) 0 -}}
+{{- $server := index $m 1 }}{{ $slug := index $m 2 }}{{ $id := index $m 3 -}}
+{{- if not $id -}}
+  {{- with try (resources.GetRemote (printf "%s/api/shared-links/me?slug=%s" $server $slug)) -}}
+    {{- with .Value }}{{ with (.Content | transform.Unmarshal).assets }}{{ if eq (len .) 1 }}{{ $id = (index . 0).id }}{{ end }}{{ end }}{{ end -}}
+  {{- end -}}
+{{- end -}}
+<div data-figure-item><p>
+{{- with $id -}}
+{{- $base := printf "%s/api/assets/%s" $server . -}}
+<video controls preload="none"{{ with $.Get "ratio" }} style="{{ printf "aspect-ratio:%s;width:100%%" . | safeCSS }}"{{ end }}{{ if eq ($.Get "muted") "true" }} muted{{ end }} poster="{{ $base }}/thumbnail?size=preview&slug={{ $slug }}" src="{{ $base }}/video/playback?slug={{ $slug }}"></video><br>
+{{- end }}
+<a href="{{ $url }}">▶ {{ i18n "feed_watch_video" | default "Watch the video" }}</a></p></div>{{ "<!--/figure-item-->" | safeHTML }}

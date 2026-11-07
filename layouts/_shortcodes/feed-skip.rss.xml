@@ -1,0 +1,1 @@
+{{- partial "feed-notice.html" (dict "page" .Page "reason" (.Get 0 | default (.Get "reason"))) -}}

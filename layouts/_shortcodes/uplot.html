@@ -10,35 +10,13 @@ off, until toggled from the legend; logx, true or a log base (default 10);
 lines=false for a scatter (points only; x must still ascend). The data is
 inlined at build time, so the chart costs no extra request. uPlot and the
 chart code (assets/js/uplot-chart.js, assets/css/uplot-chart.css) load from
-baseof only on pages that use the shortcode.
+baseof only on pages that use the shortcode. Feeds get a static SVG instead
+(uplot.rss.xml).
 */ -}}
-{{- $src := .Get "src" }}
-{{- $res := .Page.Resources.Get $src }}
-{{- /* Only a warning: generators that build the site to produce src run before it exists. */}}
-{{- if not $res }}{{ warnf "uplot: %q not found in %s" $src .Page.File.Path }}{{ else }}
-{{- $data := $res | transform.Unmarshal }}
-{{- $x := .Get "x" }}
-{{- $keys := slice $x }}
-{{- range split (.Get "y") "," }}{{ $keys = $keys | append (trim . " ") }}{{ end }}
-{{- $columns := dict }}
-{{- $present := slice }}
-{{- range $k := $keys }}
-  {{- with index $data $k }}
-    {{- $columns = merge $columns (dict $k .) }}{{ $present = $present | append $k }}
-  {{- else }}{{ warnf "uplot: no %q in %s" $k $src }}{{ end }}
-{{- end }}
-{{- $keys = $present }}
-{{- $opts := dict
-  "logx" (.Get "logx" | default false)
-  "lines" (.Get "lines" | default true)
-  "xlabel" (.Get "xlabel" | default $x)
-  "ylabel" (.Get "ylabel" | default "")
-  "keys" $keys
-  "hidden" (apply (split (.Get "hidden" | default "") ",") "trim" "." " ")
-}}
+{{- with partial "uplot/data.html" . }}
 <figure class="uplot-chart">
   <div class="uplot-chart__plot"></div>
-  <script type="application/json">{{ dict "opts" $opts "columns" $columns | jsonify | safeJS }}</script>
-  {{- with .Get "caption" }}<figcaption>{{ . | $.Page.RenderString }}</figcaption>{{ end }}
+  <script type="application/json">{{ dict "opts" .opts "columns" .columns | jsonify | safeJS }}</script>
+  {{- with $.Get "caption" }}<figcaption>{{ . | $.Page.RenderString }}</figcaption>{{ end }}
 </figure>
 {{- end }}

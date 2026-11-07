@@ -1,0 +1,110 @@
+{{- /*
+  Static SVG of an uplot chart, for feeds, where the uPlot script can't run.
+  Context: partial "uplot/data.html"'s result. Hidden series are left off the
+  plot and greyed in the legend, as uPlot first draws them. Mid-grey text and
+  grid read on light and dark readers alike, since an <img> can't follow the
+  reader's theme.
+*/ -}}
+{{- $o := .opts }}{{ $cols := .columns }}
+{{- $W := 800. }}{{ $H := 400. }}
+{{- $ml := 80. }}{{ $mr := 40. }}{{ $mt := 44. }}{{ $mb := 56. }}
+{{- $pw := sub (sub $W $ml) $mr }}{{ $ph := sub (sub $H $mt) $mb }}
+{{- $palette := slice "#3b82f6" "#e07a1f" "#2a9d8f" "#c2417a" }}
+{{- $ln10 := math.Log 10 }}
+
+{{- $base := 0. }}
+{{- $lx := printf "%v" $o.logx }}
+{{- if eq $lx "true" }}{{ $base = 10. }}{{ else if not (in (slice "false" "" "0") $lx) }}{{ $base = float $lx }}{{ end }}
+
+{{- /* x in plot units: its log for a log axis. */}}
+{{- $tx := slice }}
+{{- range index $cols (index $o.keys 0) }}
+  {{- $v := float . }}
+  {{- if gt $base 0. }}{{ $v = div (math.Log $v) (math.Log $base) }}{{ end }}
+  {{- $tx = $tx | append $v }}
+{{- end }}
+{{- $xlo := 0. }}{{ $xhi := 1. }}
+{{- $xticks := slice }}
+{{- if gt $base 0. }}
+  {{- /* A log axis spans whole powers, labelling at most ~10 of them. */}}
+  {{- $elo := math.Floor (add (math.Min $tx) 1e-9) }}{{ $ehi := math.Ceil (sub (math.Max $tx) 1e-9) }}
+  {{- if eq $elo $ehi }}{{ $ehi = add $ehi 1. }}{{ end }}
+  {{- $xlo = $elo }}{{ $xhi = $ehi }}
+  {{- $every := int (math.Ceil (div (sub $ehi $elo) 10.)) }}
+  {{- $digits := div (math.Log $base) $ln10 }}
+  {{- range $e := seq (int $elo) $every (int $ehi) }}
+    {{- $dec := int (math.Max 0 (math.Ceil (sub (mul -1 $e $digits) 1e-9))) }}
+    {{- $xticks = $xticks | append (dict "t" (float $e) "label" (lang.FormatNumber $dec (math.Pow $base (float $e)))) }}
+  {{- end }}
+{{- else }}
+  {{- $t := partial "uplot/ticks.html" (dict "min" (math.Min $tx) "max" (math.Max $tx) "n" 8) }}
+  {{- $xlo = $t.lo }}{{ $xhi = $t.hi }}
+  {{- range $i := seq 0 (int (math.Round (div (sub $t.hi $t.lo) $t.step))) }}
+    {{- $v := add $t.lo (mul $i $t.step) }}
+    {{- $xticks = $xticks | append (dict "t" $v "label" (lang.FormatNumber $t.dec $v)) }}
+  {{- end }}
+{{- end }}
+
+{{- $series := after 1 $o.keys }}
+{{- $ys := slice }}
+{{- range $series }}
+  {{- if not (in $o.hidden .) }}
+    {{- range index $cols . }}{{ if ne . nil }}{{ $ys = $ys | append (float .) }}{{ end }}{{ end }}
+  {{- end }}
+{{- end }}
+{{- if not $ys }}{{ $ys = slice 0. 1. }}{{ end }}
+{{- $yt := partial "uplot/ticks.html" (dict "min" (math.Min $ys) "max" (math.Max $ys) "n" 6) }}
+{{- $ylo := $yt.lo }}{{ $yhi := $yt.hi }}
+
+{{- $sx := div $pw (sub $xhi $xlo) }}{{ $sy := div $ph (sub $yhi $ylo) }}
+{{- $bottom := add $mt $ph -}}
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" font-size="13" fill="#888">
+<g stroke="#888" stroke-opacity="0.25">
+{{- range $xticks }}{{ $x := add $ml (mul (sub .t $xlo) $sx) }}
+<line x1="{{ printf "%.1f" $x }}" x2="{{ printf "%.1f" $x }}" y1="{{ $mt }}" y2="{{ $bottom }}"/>
+{{- end }}
+{{- range $i := seq 0 (int (math.Round (div (sub $yhi $ylo) $yt.step))) }}{{ $y := sub $bottom (mul $i $yt.step $sy) }}
+<line x1="{{ $ml }}" x2="{{ add $ml $pw }}" y1="{{ printf "%.1f" $y }}" y2="{{ printf "%.1f" $y }}"/>
+{{- end }}
+</g>
+<g text-anchor="middle">
+{{- range $xticks }}
+<text x="{{ printf "%.1f" (add $ml (mul (sub .t $xlo) $sx)) }}" y="{{ add $bottom 18 }}">{{ .label }}</text>
+{{- end }}
+<text x="{{ add $ml (div $pw 2) }}" y="{{ sub $H 10 }}">{{ $o.xlabel }}</text>
+<text transform="translate(16 {{ add $mt (div $ph 2) }}) rotate(-90)">{{ $o.ylabel }}</text>
+</g>
+<g text-anchor="end">
+{{- range $i := seq 0 (int (math.Round (div (sub $yhi $ylo) $yt.step))) }}{{ $v := add $ylo (mul $i $yt.step) }}
+<text x="{{ sub $ml 8 }}" y="{{ printf "%.1f" (add (sub $bottom (mul $i $yt.step $sy)) 4) }}">{{ lang.FormatNumber $yt.dec $v }}</text>
+{{- end }}
+</g>
+{{- $lx := $ml }}
+{{- range $i, $k := $series }}
+  {{- $c := index $palette (mod $i (len $palette)) }}
+  {{- $off := in $o.hidden $k }}
+<g{{ if $off }} opacity="0.4"{{ end }}><line x1="{{ $lx }}" x2="{{ add $lx 16 }}" y1="16" y2="16" stroke="{{ $c }}" stroke-width="2"/><text x="{{ add $lx 22 }}" y="20">{{ $k }}</text></g>
+  {{- $lx = add $lx 40 (mul 7.5 (len $k)) }}
+  {{- if not $off }}
+    {{- $segs := slice }}{{ $pts := "" }}
+    {{- range $j, $v := index $cols $k }}
+      {{- if eq $v nil }}
+        {{- with $pts }}{{ $segs = $segs | append . }}{{ end }}{{ $pts = "" }}
+      {{- else }}
+        {{- $pts = printf "%s %.1f,%.1f" $pts (add $ml (mul (sub (index $tx $j) $xlo) $sx)) (sub $bottom (mul (sub (float $v) $ylo) $sy)) }}
+      {{- end }}
+    {{- end }}
+    {{- with $pts }}{{ $segs = $segs | append . }}{{ end }}
+<g stroke="{{ $c }}" fill="{{ $c }}">
+    {{- range $segs }}
+      {{- if $o.lines }}
+<polyline points="{{ trim . " " }}" fill="none" stroke-width="2" stroke-linejoin="round"/>
+      {{- end }}
+      {{- range split (trim . " ") " " }}{{ $p := split . "," }}
+<circle cx="{{ index $p 0 }}" cy="{{ index $p 1 }}" r="{{ cond $o.lines 2.5 3 }}" stroke="none"/>
+      {{- end }}
+    {{- end }}
+</g>
+  {{- end }}
+{{- end }}
+</svg>

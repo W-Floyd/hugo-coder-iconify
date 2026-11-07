@@ -1,0 +1,10 @@
+{{- /* Feeds can't run uPlot: render the chart to an SVG file and show that. */ -}}
+{{- with partial "uplot/data.html" . }}
+{{- $svg := partial "uplot/svg.html" . | string }}
+{{- $name := printf "%s%s-%s.svg" (strings.TrimPrefix "/" $.Page.RelPermalink) (path.BaseName .src) (substr (md5 $svg) 0 8) }}
+{{- $img := resources.FromString $name $svg }}
+<figure>
+  <img src="{{ $img.Permalink }}" width="800" height="400" alt="{{ printf "Chart: %s against %s" (.opts.ylabel | default "value") .opts.xlabel }}">
+  {{- with $.Get "caption" }}<figcaption>{{ . | $.Page.RenderString }}</figcaption>{{ end }}
+</figure>
+{{- end }}

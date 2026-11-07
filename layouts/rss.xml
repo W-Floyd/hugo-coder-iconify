@@ -12,6 +12,10 @@
   Build-time MathML carries an <annotation encoding="application/x-tex"> with the
   LaTeX source; readers without full MathML support show it beside the rendered
   equation, so it is stripped from the feed (the page keeps it).
+
+  Many readers strip iframes, so YouTube embeds become a linked thumbnail. A
+  youtube.rss.xml shortcode can't do this: Hugo would then pick it over the
+  embedded youtube.html for pages too.
 */ -}}
 {{- $pctx := . -}}
 {{- if .IsHome -}}{{ $pctx = .Site }}{{- end -}}
@@ -48,6 +52,7 @@
       {{- $content := cond .Site.Params.rssFullContent .Content .Summary -}}
       {{- $content = replaceRE `(?s)<noscript>.*?</noscript>` "" $content -}}
       {{- $content = replaceRE `(?s)<annotation encoding="application/x-tex">.*?</annotation>` "" $content -}}
+      {{- $content = replaceRE `(?s)<div[^>]*>\s*<iframe[^>]*\bsrc="https://www\.youtube(?:-nocookie)?\.com/embed/([\w-]+)[^"]*"[^>]*></iframe>\s*</div>` `<p><a href="https://www.youtube.com/watch?v=$1"><img src="https://i.ytimg.com/vi/$1/hqdefault.jpg" alt="YouTube video"><br>▶ Watch the video</a></p>` $content -}}
       <description>{{ $content | transform.XMLEscape | safeHTML }}</description>
     </item>
     {{- end }}

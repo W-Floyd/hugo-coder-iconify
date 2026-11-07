@@ -1,0 +1,5 @@
+{{- /*
+  Stands in, in feeds, for content a feed reader can't show (it needs
+  JavaScript, or readers strip it). Context: dict "page" and "reason".
+*/ -}}
+<blockquote><p><em>{{ i18n "feed_omitted" | default "Not shown in feeds" }}: {{ .reason }}. <a href="{{ .page.Permalink }}">{{ i18n "feed_view_on_site" | default "View it on the site" }}</a>.</em></p></blockquote>

@@ -1,0 +1,1 @@
+{{- partial "feed-notice.html" (dict "page" .Page "reason" "a Mermaid diagram, drawn by JavaScript") -}}
