@@ -1,0 +1,64 @@
+{{- /*
+  An RSS channel for rss.xml. Context: dict "page", "quality" (low, med or hi;
+  see feed/images.html) and "self" (this feed's URL).
+
+  Mirrors Hugo's built-in feed. When the site param `rssFullContent` is true,
+  each item's <description> carries the whole `.Content` (full-text feed);
+  otherwise it falls back to `.Summary`, matching Hugo's default.
+
+  Deferred images (crossfade frames, featured images) emit a <noscript> with a
+  duplicate <img> fallback (see responsive-img.html). A browser with JS hides
+  that noscript, but feed readers render its contents alongside the live <img>,
+  doubling every such image. The live <img> already carries a usable src, so we
+  strip <noscript> blocks from the feed content.
+
+  Build-time MathML carries an <annotation encoding="application/x-tex"> with the
+  LaTeX source; readers without full MathML support show it beside the rendered
+  equation, so it is stripped from the feed (the page keeps it).
+
+  Many readers strip iframes, so YouTube embeds become a linked thumbnail. A
+  youtube.rss.xml shortcode can't do this: Hugo would then pick it over the
+  embedded youtube.html for pages too.
+*/ -}}
+{{- $p := .page -}}{{- $q := .quality -}}
+{{- $pctx := $p -}}
+{{- if $p.IsHome -}}{{ $pctx = $p.Site }}{{- end -}}
+{{- $pages := slice -}}
+{{- if or $p.IsHome $p.IsSection -}}
+{{- $pages = $pctx.RegularPages -}}
+{{- else -}}
+{{- $pages = $pctx.Pages -}}
+{{- end -}}
+{{- $limit := $p.Site.Config.Services.RSS.Limit -}}
+{{- if ge $limit 1 -}}
+{{- $pages = $pages | first $limit -}}
+{{- end -}}
+{{- $title := cond (eq $p.Title $p.Site.Title) $p.Site.Title (printf "%s on %s" $p.Title $p.Site.Title) -}}
+{{- if ne $q "med" }}{{ $title = printf "%s (%s-quality images)" $title (cond (eq $q "hi") "high" "low") }}{{ end -}}
+{{- printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>{{ $title }}</title>
+    <link>{{ $p.Permalink }}</link>
+    <description>Recent content {{ if ne $p.Title $p.Site.Title }}{{ with $p.Title }}in {{ . }} {{ end }}{{ end }}on {{ $p.Site.Title }}</description>
+    <generator>Hugo</generator>
+    {{- with $p.Site.Language.Locale }}<language>{{ . }}</language>{{ end }}
+    {{- with $p.Site.Params.author }}<managingEditor>{{ . }}</managingEditor>{{ end }}
+    {{- with $p.Site.Params.author }}<webMaster>{{ . }}</webMaster>{{ end }}
+    {{- with $p.Site.Copyright }}<copyright>{{ . }}</copyright>{{ end }}
+    {{- if not $p.Date.IsZero }}<lastBuildDate>{{ $p.Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</lastBuildDate>{{ end }}
+    {{ printf "<atom:link href=%q rel=\"self\" type=\"application/rss+xml\" />" .self | safeHTML }}
+    {{- range $pages }}
+    <item>
+      <title>{{ .Title }}</title>
+      <link>{{ .Permalink }}</link>
+      <pubDate>{{ .Date.Format "Mon, 02 Jan 2006 15:04:05 -0700" | safeHTML }}</pubDate>
+      {{- with .Site.Params.author }}<author>{{ . }}</author>{{ end }}
+      <guid>{{ .Permalink }}</guid>
+      {{- $content := partialCached "feed/content.html" . .Permalink .Site.Params.rssFullContent -}}
+      {{- $content = partialCached "feed/images.html" (dict "content" $content "quality" $q) .Permalink $q .Site.Params.rssFullContent -}}
+      <description>{{ $content | transform.XMLEscape | safeHTML }}</description>
+    </item>
+    {{- end }}
+  </channel>
+</rss>

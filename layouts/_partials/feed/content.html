@@ -1,0 +1,6 @@
+{{- /* A page's feed body, before feed/images.html; see feed/channel.xml for why each strip. */ -}}
+{{- $content := cond .Site.Params.rssFullContent .Content .Summary -}}
+{{- $content = replaceRE `(?s)<noscript>.*?</noscript>` "" $content -}}
+{{- $content = replaceRE `(?s)<annotation encoding="application/x-tex">.*?</annotation>` "" $content -}}
+{{- $content = replaceRE `(?s)<div[^>]*>\s*<iframe[^>]*\bsrc="https://www\.youtube(?:-nocookie)?\.com/embed/([\w-]+)[^"]*"[^>]*></iframe>\s*</div>` `<p><a href="https://www.youtube.com/watch?v=$1"><img src="https://i.ytimg.com/vi/$1/hqdefault.jpg" alt="YouTube video"><br>▶ Watch the video</a></p>` $content -}}
+{{- return $content -}}

@@ -1,0 +1,57 @@
+{{- /*
+  Fixes a feed body's images to one quality tier, as coder.js's toggle would,
+  since readers run no JavaScript. Context: dict "content" and "quality":
+
+    low  the smallest stock variant, no srcset
+    med  the stock srcset, deferred ones (data-srcset) made live
+    hi   the -hq srcset and full-size links, where an image has them
+
+  Many readers drop srcset, so med and hi also raise src to the widest rung
+  within about 1.5× and 2× the 860px content column. Low also takes Immich's
+  small poster, as the toggle does.
+*/ -}}
+{{- $c := .content }}{{ $q := .quality }}
+{{- $cap := cond (eq $q "hi") 1920 1280 }}
+{{- range uniq (findRE `<img\b[^>]*>` $c) }}
+  {{- $img := . }}
+  {{- $a := dict }}
+  {{- range findRESubmatch `\s(src|srcset|sizes|data-srcset|data-sizes|data-hq-src|data-hq-srcset)="([^"]*)"` . }}
+    {{- $a = merge $a (dict (index . 1) (index . 2)) }}
+  {{- end }}
+  {{- with $a.src }}
+    {{- $src := . }}
+    {{- $set := $a.srcset | default (index $a "data-srcset") | default "" }}
+    {{- $sizes := $a.sizes | default (index $a "data-sizes") | default "" }}
+    {{- if and (eq $q "hi") (index $a "data-hq-src") }}
+      {{- $src = index $a "data-hq-src" }}{{ $set = index $a "data-hq-srcset" | default "" }}
+    {{- end }}
+    {{- if eq $q "low" }}{{ $set = "" }}{{ end }}
+    {{- $best := "" }}{{ $bw := 0 }}
+    {{- range findRESubmatch `(\S+)\s+(\d+)w` $set }}
+      {{- $w := int (index . 2) }}
+      {{- if and (le $w $cap) (gt $w $bw) }}{{ $best = index . 1 }}{{ $bw = $w }}{{ end }}
+    {{- end }}
+    {{- with $best }}{{ $src = . }}{{ end }}
+    {{- $tag := replaceRE `\s(?:srcset|sizes|data-srcset|data-sizes|data-hq-src|data-hq-srcset)="[^"]*"` "" $img }}
+    {{- $extra := cond (ne $set "") (printf ` srcset="%s" sizes="%s"` $set $sizes) "" }}
+    {{- $tag = replace $tag (printf `src="%s"` $a.src) (printf `src="%s"%s` $src $extra) 1 }}
+    {{- $c = replace $c $img $tag }}
+  {{- end }}
+{{- end }}
+{{- range uniq (findRE `<a\b[^>]*\sdata-hq-href="[^"]*"[^>]*>` $c) }}
+  {{- $tag := replaceRE `\sdata-hq-href="[^"]*"` "" . }}
+  {{- if eq $q "hi" }}
+    {{- $hq := index (findRESubmatch `\sdata-hq-href="([^"]*)"` . 1) 0 1 }}
+    {{- $tag = replaceRE `\shref="[^"]*"` (printf ` href="%s"` $hq) $tag 1 }}
+  {{- end }}
+  {{- $c = replace $c . $tag }}
+{{- end }}
+{{- if eq $q "low" }}{{ $c = replaceRE `(poster="[^"]*/thumbnail\?size=)preview` "${1}thumbnail" $c }}{{ end }}
+{{- /* Hugo makes root-relative URLs absolute in the rss output only, not in
+     the low/hi feeds rss.xml publishes as resources. */}}
+{{- $base := strings.TrimSuffix "/" site.BaseURL }}
+{{- $c = replaceRE `(\s(?:src|href|poster)=")/([^/])` (printf "${1}%s/${2}" $base) $c }}
+{{- range uniq (findRE `\ssrcset="[^"]*"` $c) }}
+  {{- $c = replace $c . (replaceRE `(["\s])/([^/])` (printf "${1}%s/${2}" $base) .) }}
+{{- end }}
+{{- return $c }}

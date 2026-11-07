@@ -1,3 +1,9 @@
 {{ range .AlternativeOutputFormats -}}
   {{ printf `<link rel="%s" type="%s" href="%s" title="%s" />` .Rel .MediaType.Type .RelPermalink $.Site.Title | safeHTML }}
+  {{- /* rss.xml's per-quality siblings, published as resources, not output formats. */}}
+  {{- if eq .Name "rss" }}{{ $dir := path.Dir .RelPermalink }}
+    {{- range slice (slice "low" "low") (slice "hi" "high") }}
+  {{ printf `<link rel="alternate" type="application/rss+xml" href="%s" title="%s (%s-quality images)" />` (path.Join $dir (printf "index.%s.xml" (index . 0))) $.Site.Title (index . 1) | safeHTML }}
+    {{- end }}
+  {{- end }}
 {{ end -}}
