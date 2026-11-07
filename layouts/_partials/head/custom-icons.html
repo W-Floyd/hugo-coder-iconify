@@ -1,13 +1,15 @@
-<link rel="icon" type="image/svg+xml" href="{{ .Site.Params.faviconSVG | default "/images/favicon.svg" | relURL }}" sizes="any">
+{{/* Not `sizes="any"`: Firefox parses that as no width, so the SVG never
+     qualifies as its rich icon (needs >= 96px) and it fetches the 180px touch
+     icon on every new visit. Declaring a size above 180 lets the SVG fill both
+     the tab and rich-icon slots in one fetch. */}}
+<link rel="icon" type="image/svg+xml" href="{{ .Site.Params.faviconSVG | default "/images/favicon.svg" | relURL }}" sizes="192x192">
 <link rel="icon" type="image/png" href="{{ .Site.Params.favicon_32 | default "/images/favicon-32x32.png" | relURL }}" sizes="32x32">
 <link rel="icon" type="image/png" href="{{ .Site.Params.favicon_16 | default "/images/favicon-16x16.png" | relURL }}" sizes="16x16">
 
 {{/* One tag, not two: both previously pointed at the same URL. `sizes` is kept
      rather than the bare form because it describes the file accurately (180x180
      is the single size Apple asks for) and lets a client rank this against the
-     other declared icons without fetching it -- Firefox in particular treats the
-     largest declared icon as a rich-icon candidate for its New Tab tiles, so it
-     pulls this file on an ordinary page visit. */}}
+     other declared icons without fetching it. */}}
 <link rel="apple-touch-icon" sizes="180x180" href="{{ .Site.Params.touchicon | default "/images/apple-touch-icon.png" | relURL }}">
 
 <link rel="manifest" href="{{ .Site.Params.manifest | default "/site.webmanifest" | relURL }}">
