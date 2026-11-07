@@ -5,7 +5,7 @@
   data-figure-item wrapper, so {{< figures >}} keeps it.
 */ -}}
 {{- $url := .Get "url" -}}
-{{- $m := index (findRESubmatch `^(https?://[^/]+)/share/([^/?#]+)(?:/photos/([^/?#]+))?` $url 1) 0 -}}
+{{- $m := index (findRESubmatch `^(https?://[^/]+)/s/([^/?#]+)(?:/photos/([^/?#]+))?` $url 1) 0 -}}
 {{- $server := index $m 1 }}{{ $slug := index $m 2 }}{{ $id := index $m 3 -}}
 {{- if not $id -}}
   {{- with try (resources.GetRemote (printf "%s/api/shared-links/me?slug=%s" $server $slug)) -}}

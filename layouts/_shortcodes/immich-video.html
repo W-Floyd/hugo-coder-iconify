@@ -28,8 +28,8 @@
   fires on the wrong pass), and {{< figures >}} keeps only recognised items so
   anything outside the div is dropped. Give videos in a figure a `ratio` so figures can size them.
 
-    url    required. Shared-link URL, https://host/share/<slug>/photos/<asset id>,
-           or https://host/share/<slug> for a single-asset share; the id is then
+    url    required. Shared-link URL, https://host/s/<slug>/photos/<asset id>,
+           or https://host/s/<slug> for a single-asset share; the id is then
            looked up at build time, so the build fails if Immich is unreachable.
     muted  optional. "true" starts the video muted.
     poster optional. Pin the Immich poster size: "preview" (1440px) or
@@ -39,7 +39,7 @@
     ratio  optional. Poster aspect ratio (e.g. "9/16") to reserve space and
            avoid layout shift while the poster loads.
 */ -}}
-{{- $m := findRESubmatch `^(https?://[^/]+)/share/([^/?#]+)(?:/photos/([^/?#]+))?` (.Get "url") 1 -}}
+{{- $m := findRESubmatch `^(https?://[^/]+)/s/([^/?#]+)(?:/photos/([^/?#]+))?` (.Get "url") 1 -}}
 {{- if not $m }}{{ errorf "immich-video: url %q is not an Immich share link (%s)" (.Get "url") .Position }}{{ end -}}
 {{- $m = index $m 0 -}}
 {{- $server := index $m 1 }}{{ $slug := index $m 2 }}{{ $id := index $m 3 -}}
