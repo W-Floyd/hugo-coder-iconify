@@ -309,3 +309,122 @@
     }
   }
 }
+
+// RSS icon's feed menu (home/social.html): a <details> whose options rise
+// above the icon, labelled like the image-quality toggle, each with its help
+// as a tooltip. Selectors outrank `.about ul li a`.
+.about ul li .feed-menu {
+  display: inline-block;
+
+  summary {
+    list-style: none;
+    display: inline-block;
+    margin: 0 1rem;
+    font-size: 1.6rem;
+    color: var(--fg-color);
+    cursor: pointer;
+    transition: color 0.05s ease-in;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &:hover,
+    &:focus-visible {
+      color: var(--link-color);
+    }
+
+    @media only screen and (max-width: 768px) {
+      font-size: 1.5rem;
+    }
+  }
+
+  &[open] summary {
+    color: var(--link-color);
+  }
+
+  .feed-menu__options {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-bottom: 0.4rem;
+    padding: 0.3rem;
+    background-color: var(--alt-bg-color);
+    border-radius: 0.2rem;
+    box-shadow: 0 0.2rem 0.8rem rgba(0, 0, 0, 0.2);
+    transform: translateX(-50%);
+    transform-origin: bottom center;
+    animation: feed-menu-rise 0.12s ease-out;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
+  }
+
+  a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 5rem;
+    height: 3.4rem;
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    color: var(--alt-fg-color);
+    border-radius: 0.2rem;
+
+    &:hover,
+    &:focus-visible {
+      color: var(--link-color);
+      background-color: var(--bg-color);
+    }
+
+    &::after {
+      content: attr(data-help);
+      position: absolute;
+      // Left: RSS is the row's last icon, so the right runs off narrow screens.
+      right: 100%;
+      top: 50%;
+      margin-right: 0.8rem;
+      padding: 0.4rem 0.8rem;
+      white-space: pre;
+      text-align: left;
+      font-size: 1.3rem;
+      line-height: 1.4;
+      font-weight: 400;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--bg-color);
+      background-color: var(--fg-color);
+      border-radius: 0.2rem;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(-50%);
+      transition: opacity 0.1s ease-in;
+    }
+
+    &:hover::after,
+    &:focus-visible::after {
+      opacity: 1;
+    }
+
+    // coder.js makes a click copy the link (without it, the link opens).
+    &[data-copy]::after {
+      content: attr(data-help) "\A" attr(data-copy);
+    }
+  }
+}
+
+@keyframes feed-menu-rise {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(0.4rem) scaleY(0.6);
+  }
+}

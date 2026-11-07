@@ -2,27 +2,33 @@
 <ul>
   {{ range sort . "weight" }}
     {{ if .icon }}
+      {{ $icon := partial "icons/icon" (dict "vendor" (.iconVendor | default "mdi") "name" .icon "height" "2em" "width" "2em") }}
+      {{- /* An RSS feed ending index.xml has index.low.xml and index.hi.xml beside it
+           (rss.xml), so its icon opens a menu of the three. A <details>, so it
+           works without JavaScript; coder.js only adds closing from outside. */}}
+      {{ if and (eq .type "application/rss+xml") (strings.HasSuffix .url "index.xml") }}
+      <li>
+        <details class="feed-menu">
+          <summary aria-label="{{ .name }}">{{ $icon }}</summary>
+          <div class="feed-menu__options">
+            {{ $url := .url }}
+            {{ range slice
+              (dict "label" "HI" "file" "index.hi.xml" "help" "High-quality images, up to 1920px")
+              (dict "label" "MED" "file" "index.xml" "help" "Standard images, up to 1280px")
+              (dict "label" "LOW" "file" "index.low.xml" "help" "Smallest images, 400px")
+            }}
+            <a href="{{ replaceRE `index\.xml$` .file $url | safeURL }}" rel="alternate" type="application/rss+xml" aria-label="RSS: {{ .help }}" data-help="{{ .help }}">{{ .label }}</a>
+            {{ end }}
+          </div>
+        </details>
+      </li>
+      {{ else }}
       <li>
         <a href="{{ .url | safeURL }}" aria-label="{{ .name }}" {{ if .rel }}rel="{{ .rel }}"{{ end }} {{ if .target }}target="{{ .target }}"{{ end }} {{ if .type }}type="{{ .type }}"{{ end }}>
-          {{ if .iconVendor }}
-            {{ $context := dict
-              "vendor" .iconVendor
-              "name" .icon
-              "height" "2em"
-              "width" "2em"
-            }}
-            {{ partial "icons/icon" $context }}
-          {{ else }}
-            {{ $context := dict
-              "vendor" "mdi"
-              "name" .icon
-              "height" "2em"
-              "width" "2em"
-            }}
-            {{ partial "icons/icon" $context }}
-          {{ end }}
+          {{ $icon }}
         </a>
       </li>
+      {{ end }}
     {{ else }}
       <li>
         <a href="{{ .url | safeURL }}" aria-label="{{ .name }}" {{ if .rel }}rel="{{ .rel }}"{{ end }} {{ if .target }}target="{{ .target }}"{{ end }}>{{ .name }}</a>

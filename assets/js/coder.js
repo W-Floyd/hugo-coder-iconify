@@ -466,3 +466,39 @@ function waitForElm(selector) {
 
     applyCollapsed(startsCollapsed());
 })();
+
+// The RSS feed menu (home/social.html): an option's click copies its feed URL,
+// which is what a reader wants, rather than opening raw XML. Without a
+// clipboard (insecure context) the link just opens.
+const FEED_COPY_HINT = 'Click to copy the feed link';
+if (navigator.clipboard) {
+    document.querySelectorAll('details.feed-menu a').forEach((a) => {
+        a.dataset.copy = FEED_COPY_HINT;
+        a.addEventListener('click', (e) => {
+            e.preventDefault();
+            const say = (msg) => {
+                a.dataset.copy = msg;
+                setTimeout(() => (a.dataset.copy = FEED_COPY_HINT), 2000);
+            };
+            navigator.clipboard.writeText(a.href).then(
+                () => say('Copied!'),
+                () => say("Couldn't copy: right-click, Copy Link"),
+            );
+        });
+    });
+}
+
+// The menu is a <details>, which only closes from its own summary; also close
+// it on Escape or a click elsewhere.
+document.addEventListener('click', (e) => {
+    document.querySelectorAll('details.feed-menu[open]').forEach((d) => {
+        if (!d.contains(e.target)) d.open = false;
+    });
+});
+document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    document.querySelectorAll('details.feed-menu[open]').forEach((d) => {
+        d.open = false;
+        d.querySelector('summary').focus();
+    });
+});
