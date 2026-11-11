@@ -72,12 +72,31 @@
   {{ if not .Site.Params.hideColorSchemeToggle }}
   {{ errorf "Invalid configuration. Default JS scripts are disabled, but 'hideColorSchemeToggle' is false." }}
   {{end}}
-  {{ else if hugo.IsServer }}
+  {{ else }}
+  {{/*
+    lazyScripts: scripts imported only when a localStorage key holds a value, so a
+    feature visitors opt into costs everyone else a few bytes of cached coder.js and no
+    request. Each src is an asset run through ExecuteAsTemplate once for the whole site
+    (with the site as context), and its fingerprinted URL is baked into coder.js, so a
+    change to it busts both caches. Without any, coder.js is unchanged.
+  */}}
   {{ $script := resources.Get "js/coder.js" }}
+  {{ with site.Params.lazyScripts }}
+    {{ $lazy := "" }}
+    {{ range . }}
+      {{ $src := resources.Get .src }}
+      {{ if not $src }}{{ errorf "lazyScripts: asset %q not found" .src }}{{ end }}
+      {{ $src = $src | resources.ExecuteAsTemplate .src site | resources.Minify | resources.Fingerprint }}
+      {{ $lazy = printf "%s;try{localStorage[%s]==%s&&import(%s)}catch{}" $lazy (.storage | jsonify) (.value | jsonify) ($src.RelPermalink | jsonify) }}
+    {{ end }}
+    {{ $script = slice $script (resources.FromString "js/lazy-scripts.js" (print "\n" $lazy "\n")) | resources.Concat "js/coder.js" }}
+  {{ end }}
+  {{ if hugo.IsServer }}
   <script src="{{ $script.RelPermalink }}"></script>
   {{ else }}
-  {{ $script := resources.Get "js/coder.js" | resources.Minify | resources.Fingerprint }}
+  {{ $script = $script | resources.Minify | resources.Fingerprint }}
   <script src="{{ $script.RelPermalink }}" integrity="{{ $script.Data.Integrity }}"></script>
+  {{ end }}
   {{ end }}
 
   {{ range .Site.Params.customJS }}

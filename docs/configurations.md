@@ -153,8 +153,26 @@ These are all the parameters used by `hugo-coder` theme.
 | customRemoteJS          | list   | No       | Add extra remote JS files to the website.                                | []                                | `["https://www.example.com/file.js"]`             |
 | enableTwemoji           | bool   | No       | Adds support for Twemoji                                                 | `false`                           | `true` or `false`                                 |
 | disableDefaultJsScripts | bool   | No       | If true, disables default js scripts (coder.js)                          | `false`                           | `true` or `false`                                 |
+| lazyScripts             | list   | No       | Scripts imported only when a localStorage key holds a value. See below.  | []                                |                                                   |
 | HeadTitle               | string | No       | When configured, it overrides the `<title>` tag with the provided string | ""                                | `"My custom title"`                               |
 
+
+### Lazy Scripts Configuration
+
+For an opt-in feature that should cost other visitors nothing but a few bytes of cached `coder.js`: each entry's asset is imported as a module only when `localStorage[storage] == value`. The asset is run through `resources.ExecuteAsTemplate` once for the whole site, with the site as context, so it can embed other resources' URLs.
+
+| Configuration | Type   | Required | Description                         | Example                  |
+| ------------- | ------ | -------- | ----------------------------------- | ------------------------ |
+| storage       | string | Yes      | localStorage key to check.          | `"myfeature"`            |
+| value         | string | Yes      | Value that enables the script.      | `"on"`                   |
+| src           | string | Yes      | Asset path of the script to import. | `"js/my-feature.js"`     |
+
+```toml
+[[params.lazyScripts]]
+storage = "myfeature"
+value = "on"
+src = "js/my-feature.js"
+```
 
 ### Social Icons Configuration
 
