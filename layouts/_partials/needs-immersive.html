@@ -1,0 +1,2 @@
+{{- /* Whether the page uses the header wallpaper or scroll-crossfade (immersive CSS and JS). */ -}}
+{{- return (or .Params.headerWallpaper (.HasShortcode "scroll-crossfade-group")) -}}

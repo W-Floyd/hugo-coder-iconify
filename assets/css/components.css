@@ -1,0 +1,343 @@
+.notice {
+  border-radius: 0.2rem;
+  position: relative;
+  margin: 2rem 0;
+  padding: 0 0.75rem;
+  overflow: auto;
+  background-color: color-mix(in srgb, var(--c) 10%, transparent);
+
+  .notice-title {
+    position: relative;
+    font-weight: 700;
+    margin: 0 -0.75rem;
+    padding: 0.2rem 3.5rem;
+    border-bottom: 1px solid var(--bg-color);
+    background-color: color-mix(in srgb, var(--c) 10%, transparent);
+
+    i {
+      color: var(--c);
+      position: absolute;
+      top: 50%;
+      left: 1.8rem;
+      transform: translate(-50%, -50%);
+    }
+  }
+
+  .notice-content {
+    display: block;
+    margin: 2rem 2rem;
+  }
+}
+
+.notice.note { --c: var(--notice-note, #5e35b1); }
+.notice.tip { --c: var(--notice-tip, #00897b); }
+.notice.example { --c: var(--notice-example, #6d4c41); }
+.notice.question { --c: var(--notice-question, #7cb342); }
+.notice.info { --c: var(--notice-info, #1e88e5); }
+.notice.warning { --c: var(--notice-warning, #ffb300); }
+.notice.error { --c: var(--notice-error, #e53935); }
+
+/* Hover preview, built by footnotes.ts. Anchored to the active reference, above it and flipped below when short of room. */
+a.footnote-active {
+  anchor-name: --footnote;
+}
+
+.footnote-popup {
+  position: fixed;
+  position-anchor: --footnote;
+  position-area: top span-all;
+  justify-self: safe anchor-center;
+  position-try-fallbacks: flip-block;
+  position-visibility: anchors-visible;
+  z-index: 20;
+  box-sizing: border-box;
+  max-width: min(36rem, calc(100vw - 2rem));
+  margin: 0.8rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--darker-alt-bg-color);
+  border-radius: 0.4rem;
+  /* Raised surface, not the page background, so it floats in both schemes. */
+  background-color: var(--alt-bg-color);
+  box-shadow: 0 0.4rem 1.2rem rgba(0, 0, 0, 0.2);
+  color: var(--fg-color);
+  /* Stated outright: a reference can sit in a <sup> in a <cite> in a blockquote. */
+  font-size: 1.6rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: left;
+
+  p {
+    margin: 0;
+
+    + p {
+      margin-top: 0.8rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: footnote-popup-in 0.12s ease-out;
+  }
+}
+
+@keyframes footnote-popup-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 2rem 0 2rem 0;
+  position: relative;
+
+  &.tabs-left {
+    justify-content: flex-start;
+
+    label.tab-label {
+      margin-right: 0.5rem;
+    }
+
+    .tab-content {
+      border-radius: 0px 4px 4px 4px;
+    }
+  }
+
+  &.tabs-right {
+    justify-content: flex-end;
+
+    label.tab-label {
+      margin-left: 0.5rem;
+    }
+
+    .tab-content {
+      border-radius: 4px 0px 4px 4px;
+    }
+  }
+
+  input.tab-input {
+    display: none;
+  }
+
+  label.tab-label {
+    background-color: var(--alt-bg-color);
+    border-color: var(--darker-alt-bg-color);
+    border-radius: 4px 4px 0px 0px;
+
+    border-style: solid;
+    border-bottom-style: hidden;
+
+    border-width: 1px;
+    cursor: pointer;
+    display: inline-block;
+    order: 1;
+    padding: 0.3rem 0.6rem;
+    position: relative;
+    top: 1px;
+    user-select: none;
+  }
+
+  input.tab-input:checked + label.tab-label {
+    background-color: var(--bg-color);
+  }
+
+  .tab-content {
+    background-color: var(--bg-color);
+    border-color: var(--darker-alt-bg-color);
+    border-style: solid;
+    border-width: 1px;
+    display: none;
+    order: 2;
+    padding: 1rem;
+    width: 100%;
+  }
+
+  &.tabs-code {
+    .tab-content {
+      padding: 0.5rem;
+
+      pre {
+        margin: 0;
+      }
+    }
+  }
+}
+
+.float-container {
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 100;
+  position: fixed;
+  font-size: 1.6em;
+  /* Stack multiple floating toggles vertically. */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    font-size: 2rem;
+    color: var(--alt-fg-color);
+    /* Subtle-at-rest look comes from a translucent chip background, NOT element */
+    /* `opacity`: dimming the whole toggle also dims the foreground, and */
+    /* translucent text over a variable page background fails WCAG AA contrast */
+    /* (the "MED" label of the image-quality toggle). Keeping the foreground */
+    /* fully opaque preserves the ghosted chip while leaving text/icons legible. */
+    background-color: color-mix(in srgb, var(--alt-bg-color) 55%, transparent);
+    border-radius: 0.2rem;
+    cursor: pointer;
+    transition:
+      color 0.05s ease-in,
+      background-color 0.05s ease-in;
+
+    &:hover,
+    &:focus {
+      color: var(--link-color);
+      background-color: var(--alt-bg-color);
+
+      @media only screen and (max-width: 768px) {
+        color: var(--alt-fg-color);
+        background-color: color-mix(in srgb, var(--alt-bg-color) 55%, transparent);
+      }
+    }
+
+    /* A toggle revealed by JS (e.g. the crossfade opt-out) stays hidden until */
+    /* shown; the [hidden] attribute must beat the `display: inline-flex` above. */
+    &[hidden] {
+      display: none;
+    }
+  }
+}
+
+/* Color-scheme toggle: show only the icon for the active mode. */
+.colorscheme-toggle .toggle-icon {
+  display: none;
+  line-height: 0;
+}
+
+body.colorscheme-auto .colorscheme-toggle .icon-auto,
+body.colorscheme-light .colorscheme-toggle .icon-light,
+body.colorscheme-dark .colorscheme-toggle .icon-dark {
+  display: inline-flex;
+}
+
+/* Immersive opt-out toggle: show the icon for the action available now — */
+/* "collapse" while immersive, "expand" once collapsed. */
+.immersive-toggle .toggle-icon {
+  display: none;
+  line-height: 0;
+}
+
+.immersive-toggle .icon-immersive {
+  display: inline-flex;
+}
+
+body.immersive-collapsed .immersive-toggle .icon-immersive {
+  display: none;
+}
+
+body.immersive-collapsed .immersive-toggle .icon-collapsed {
+  display: inline-flex;
+}
+
+/* Image-quality (low/med/hi) toggle: short text labels rather than an icon. */
+/* Show only the label for the active mode (body[data-image-mode]), defaulting */
+/* to "MED" — the as-rendered state — before coder.js sets the attribute. */
+.hq-toggle .toggle-icon {
+  display: none;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.hq-toggle .icon-med {
+  display: inline-flex;
+}
+
+body[data-image-mode] .hq-toggle .icon-med {
+  display: none;
+}
+
+body[data-image-mode="low"] .hq-toggle .icon-low,
+body[data-image-mode="med"] .hq-toggle .icon-med,
+body[data-image-mode="hi"] .hq-toggle .icon-hi {
+  display: inline-flex;
+}
+
+.mastodon-wrapper {
+    display: flex;
+    gap: 3rem;
+    flex-direction: row;
+}
+
+.comment-level {
+    max-width: 3rem;
+    min-width: 3rem;
+}
+
+.reply-original {
+    display: none;
+}
+
+.mastodon-comment {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 1rem;
+    flex-direction: column;
+    flex-grow: 2;
+
+    .comment {
+        display: flex;
+        flex-direction: row;
+        gap: 1rem;
+    }
+
+    .comment-avatar img {
+        width: 6rem;
+    }
+
+    .content {
+        flex-grow: 2;
+    }
+
+    .comment-author {
+        display: flex;
+        flex-direction: column;
+
+        &-name {
+            font-weight: bold;
+            a {
+                display: flex;
+                align-items: center;
+            }
+        }
+
+        &-date {
+            margin-left: auto;
+        }
+    }
+
+}
+
+.mastodon-comment-content p:first-child {
+    margin-top: 0;
+}
+
+.mastodon {
+  --dlg-bg: #282c37;
+  --dlg-w: 600px;
+  --dlg-color: #9baec8;
+  --dlg-button-p: 0.75em 2em;
+  --dlg-outline-c: #00D9F5;
+}

@@ -1,3 +1,81 @@
+/* Override any of these from a customCSS file; color-scheme on <body> picks the light-dark() side. */
+:root {
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", Helvetica, "游ゴシック", "PingFang SC", STXihei,"华文细黑", "Microsoft YaHei","微软雅黑", SimSun,"宋体", Heiti,"黑体", sans-serif;
+  --code-font-family: "SF Mono", Consolas, Liberation Mono, Menlo, monospace;
+  --fg-color: light-dark(#212121, #dadada);
+  --bg-color: light-dark(#fafafa, #212121);
+  --alt-bg-color: light-dark(#e0e0e0, #424242);
+  --alt-fg-color: light-dark(#000, #dadada);
+  --darker-alt-bg-color: light-dark(#ccc, #4f4f4f);
+  --link-color: light-dark(#1565c0, #42a5f5);
+}
+
+body.colorscheme-light { color-scheme: light; }
+body.colorscheme-dark { color-scheme: dark; }
+body.colorscheme-auto { color-scheme: light dark; }
+
+/* Minimal modern reset. */
+
+/* Replaces normalize.css v8.0.1, which was ~90% fixes for IE 10/11, legacy */
+/* Edge, Chrome 57- and old Firefox. This keeps only the rules evergreen */
+/* browsers still need; everything else (b/strong weight, code/pre fonts, */
+/* img max-width, box-sizing) is already set in _base.css. */
+
+html {
+  /* Prevent iOS text size inflation on orientation change. */
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  /* Wrap long, unbroken URLs instead of overflowing their container. */
+  word-wrap: break-word;
+}
+
+/* Form controls don't inherit typography by default. */
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: 1.15;
+  margin: 0;
+}
+
+button,
+[type="button"],
+[type="reset"],
+[type="submit"] {
+  -webkit-appearance: button;
+  appearance: button;
+}
+
+small {
+  font-size: 80%;
+}
+
+/* Keep sub/sup from shifting line height. */
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+sup {
+  top: -0.5em;
+}
+
 *,
 *:after,
 *:before {
@@ -12,7 +90,7 @@ html {
 body {
   color: var(--fg-color);
   background-color: var(--bg-color);
-  font-family: $font-family;
+  font-family: var(--font-family);
   font-size: 1.8em;
   font-weight: 400;
   line-height: 1.8em;
@@ -25,6 +103,13 @@ body {
 
 iframe[src*="disqus"] {
   color-scheme: light;
+}
+
+/* Every link-ish colour change eases. */
+a,
+i,
+summary {
+  transition: color 0.05s ease-in;
 }
 
 a {
@@ -46,14 +131,14 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: $font-family;
+  font-family: var(--font-family);
   font-weight: 600;
   color: var(--alt-fg-color);
   margin: 4rem 0 2.5rem 0;
 
-  // The whole heading is a permalink to itself. It looks like a normal heading;
-  // a "#" hint fades in to its left on hover (positioned in the margin so the
-  // heading text doesn't shift).
+  /* The whole heading is a permalink to itself. It looks like a normal heading; */
+  /* a "#" hint fades in to its left on hover (positioned in the margin so the */
+  /* heading text doesn't shift). */
   &:hover .heading-link::before {
     opacity: 1;
   }
@@ -159,7 +244,7 @@ strong {
 
 pre {
   display: block;
-  font-family: $code-font-family;
+  font-family: var(--code-font-family);
   font-size: 1.6rem;
   font-weight: 400;
   line-height: 2.6rem;
@@ -176,7 +261,7 @@ pre {
 }
 
 code {
-  font-family: $code-font-family;
+  font-family: var(--code-font-family);
   font-size: 1.6rem;
   font-weight: 400;
   border-radius: 0.6rem;
@@ -202,8 +287,8 @@ hr {
 }
 
 blockquote {
-  border-left: 2px solid var(--alt-bg-color);
-  padding-left: 2rem;
+  border-inline-start: 2px solid var(--alt-bg-color);
+  padding-inline-start: 2rem;
   line-height: 2.2rem;
   font-weight: 400;
   font-style: italic;
@@ -236,12 +321,12 @@ table tr:last-child td {
 
 table tr td:first-child,
 table tr th:first-child {
-  border-left: 0;
+  border-inline-start: 0;
 }
 
 table tr td:last-child,
 table tr th:last-child {
-  border-right: 0;
+  border-inline-end: 0;
 }
 
 img {
@@ -274,30 +359,20 @@ figure {
   padding-right: 2rem;
 }
 
-.fab {
-  font-weight: 400;
-}
-
-.fas {
-  font-weight: 700;
-}
-
 .float-right {
   float: right;
 }
 
-.float-left {
-  float: left;
-}
+body.rtl {
+  direction: rtl;
 
-.fab {
-  font-weight: 400;
-}
+  pre {
+    direction: ltr;
+  }
 
-.fas {
-  font-weight: 900;
-}
-
-.sr-only {
-  @include sr-only;
+  .menu-button {
+    @media only screen and (max-width: 768px) {
+      float: left;
+    }
+  }
 }

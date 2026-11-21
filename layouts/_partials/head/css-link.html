@@ -1,0 +1,9 @@
+{{- /* Bundles assets/css/<name>.css; takes the bare name. */ -}}
+{{ $opts := dict "minify" (not hugo.IsServer) "sourceMap" (cond hugo.IsServer "linked" "none") }}
+{{ with resources.Get (printf "css/%s.css" .) | css.Build $opts }}
+  {{ if hugo.IsServer }}
+    <link rel="stylesheet" href="{{ .RelPermalink }}" media="screen">
+  {{ else }}
+    {{ with . | fingerprint }}<link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous" media="screen">{{ end }}
+  {{ end }}
+{{ end }}

@@ -12,8 +12,8 @@
     margin-top: 6.4rem;
     margin-bottom: 3.2rem;
 
-    // The generous top margin reads as dead space on a small screen, where the
-    // nav bar already supplies enough breathing room above the title.
+    /* The generous top margin reads as dead space on a small screen, where the */
+    /* nav bar already supplies enough breathing room above the title. */
     @media only screen and (max-width: 768px) {
       margin-top: 0;
       margin-bottom: 2rem;
@@ -38,9 +38,9 @@
       display: inline;
     }
 
-    // Body-text links get an underline that fades in on hover and ducks behind
-    // descenders (p, q, y, g). Scoped to inline prose links — skip only the
-    // heading anchor, which has its own icon affordance.
+    /* Body-text links get an underline that fades in on hover and ducks behind */
+    /* descenders (p, q, y, g). Scoped to inline prose links — skip only the */
+    /* heading anchor, which has its own icon affordance. */
     a:not(.heading-link) {
       text-decoration: underline;
       text-decoration-color: transparent;
@@ -86,9 +86,9 @@
       margin-bottom: 0.75em;
     }
 
-    // Give body images a sleek, modern container look. Exclude the crossfade
-    // frames (full-bleed layers with their own sizing), and skip it entirely
-    // when the page opts out via `plainImages` in front matter.
+    /* Give body images a sleek, modern container look. Exclude the crossfade */
+    /* frames (full-bleed layers with their own sizing), and skip it entirely */
+    /* when the page opts out via `plainImages` in front matter. */
     &:not(.plain-images) .post-content img:not(.scroll-crossfade__img) {
       display: block;
       max-width: 100%;
@@ -98,9 +98,9 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
     }
 
-    // The image shortcode wraps the <img> in a full-res link; make that anchor
-    // block-level so the body-image box (centered, max-width:100%) lays out as
-    // expected rather than shrink-wrapping inline.
+    /* The image shortcode wraps the <img> in a full-res link; make that anchor */
+    /* block-level so the body-image box (centered, max-width:100%) lays out as */
+    /* expected rather than shrink-wrapping inline. */
     &:not(.plain-images) .post-content a.image-full {
       display: block;
     }
@@ -109,20 +109,18 @@
       i {
         text-align: center;
         width: 1.6rem;
-        margin-left: 0;
-        margin-right: 0.5rem;
+        margin-inline: 0 0.5rem;
       }
 
       .date {
         .posted-on {
-          margin-left: 0;
-          margin-right: 1.5rem;
+          margin-inline: 0 1.5rem;
         }
       }
 
-      // Tags/categories wrap as a flex row so chips reflow cleanly on narrow
-      // screens; each separator rides inside a non-breaking .tax-item with the
-      // item it precedes, so a wrap never strands a "•" at the end of a line.
+      /* Tags/categories wrap as a flex row so chips reflow cleanly on narrow */
+      /* screens; each separator rides inside a non-breaking .tax-item with the */
+      /* item it precedes, so a wrap never strands a "•" at the end of a line. */
       .tags,
       .categories {
         display: flex;
@@ -141,17 +139,7 @@
       .tags {
         .tag {
           padding: 0.3rem 0.6rem;
-          background-color: var(--alt-bg-color);
-          border-radius: 0.6rem;
           line-height: 1.5em;
-
-          a {
-            color: var(--fg-color);
-          }
-
-          a:active {
-            color: var(--fg-color);
-          }
         }
       }
     }
@@ -197,12 +185,12 @@
         display: inline-block;
         flex: 1;
         width: 20rem;
-        text-align: right;
-        margin-right: 3rem;
+        text-align: end;
+        margin-inline-end: 3rem;
 
         @media only screen and (max-width: 768px) {
           display: block;
-          text-align: left;
+          text-align: start;
         }
       }
 
@@ -210,9 +198,8 @@
         font-size: 1.8rem;
         flex: 2;
         color: var(--fg-color);
-        font-family: $font-family;
+        font-family: var(--font-family);
         font-weight: 700;
-        transition: color 0.05s ease-in;
 
         &:hover,
         &:focus {
@@ -270,7 +257,6 @@
           margin-left: 1rem;
           margin-right: 1rem;
           font-size: 1.6rem;
-          transition: color 0.05s ease-in;
 
           &:hover,
           &:focus {
@@ -310,9 +296,9 @@
   }
 }
 
-// RSS icon's feed menu (home/social.html): a <details> whose options rise
-// above the icon, labelled like the image-quality toggle, each with its help
-// as a tooltip. Selectors outrank `.about ul li a`.
+/* RSS icon's feed menu (home/social.html): a <details> whose options rise */
+/* above the icon, labelled like the image-quality toggle, each with its help */
+/* as a tooltip. Selectors outrank `.about ul li a`. */
 .about ul li .feed-menu {
   display: inline-block;
 
@@ -323,7 +309,6 @@
     font-size: 1.6rem;
     color: var(--fg-color);
     cursor: pointer;
-    transition: color 0.05s ease-in;
 
     &::-webkit-details-marker {
       display: none;
@@ -389,7 +374,7 @@
     &::after {
       content: attr(data-help);
       position: absolute;
-      // Left: RSS is the row's last icon, so the right runs off narrow screens.
+      /* Left: RSS is the row's last icon, so the right runs off narrow screens. */
       right: 100%;
       top: 50%;
       margin-right: 0.8rem;
@@ -415,7 +400,7 @@
       opacity: 1;
     }
 
-    // coder.js makes a click copy the link (without it, the link opens).
+    /* coder.js makes a click copy the link (without it, the link opens). */
     &[data-copy]::after {
       content: attr(data-help) "\A" attr(data-copy);
     }
@@ -426,5 +411,217 @@
   from {
     opacity: 0;
     transform: translateX(-50%) translateY(0.4rem) scaleY(0.6);
+  }
+}
+
+.navigation {
+  height: 6rem;
+  width: 100%;
+
+  a,
+  span {
+    display: inline;
+    font-size: 1.7rem;
+    font-family: var(--font-family);
+    font-weight: 600;
+    color: var(--fg-color);
+  }
+
+  a {
+
+    &:hover,
+    &:focus {
+      color: var(--link-color);
+    }
+  }
+
+  .navigation-title {
+    letter-spacing: 0.1rem;
+    text-transform: uppercase;
+  }
+
+  .navigation-list {
+    float: inline-end;
+    list-style: none;
+    margin-bottom: 0;
+    margin-top: 0;
+
+    @media only screen and (max-width: 768px) {
+      position: relative;
+      top: 2rem;
+      inset-inline-end: 0;
+      z-index: 5;
+      visibility: hidden;
+      opacity: 0;
+      padding: 0;
+      max-height: 0;
+      width: 100%;
+      background-color: var(--bg-color);
+      border-top: solid 2px var(--alt-bg-color);
+      border-bottom: solid 2px var(--alt-bg-color);
+      transition: opacity 0.25s, max-height 0.15s linear;
+    }
+
+    .navigation-item {
+      float: inline-start;
+      margin: 0;
+      position: relative;
+
+      @media only screen and (max-width: 768px) {
+        float: none !important;
+        text-align: center;
+
+        a,
+        span {
+          line-height: 5rem;
+        }
+      }
+
+      a,
+      span {
+        margin-left: 1rem;
+        margin-right: 1rem;
+      }
+    }
+
+    .separator {
+      @media only screen and (max-width: 768px) {
+        display: none;
+      }
+    }
+
+    .menu-separator {
+      @media only screen and (max-width: 768px) {
+        border-top: 2px solid var(--fg-color);
+        margin: 0 8rem;
+
+        span {
+          display: none;
+        }
+      }
+    }
+  }
+
+  #dark-mode-toggle {
+    margin: 1.7rem 0;
+    font-size: 2.4rem;
+    line-height: inherit;
+    bottom: 2rem;
+    left: 2rem;
+    z-index: 100;
+    position: fixed;
+  }
+
+  #menu-toggle {
+    display: none;
+
+    @media only screen and (max-width: 768px) {
+      display: initial;
+      position: relative;
+      visibility: hidden;
+
+      &:checked+label>i {
+        color: var(--alt-bg-color);
+      }
+
+      &:checked+label+ul {
+        visibility: visible;
+        opacity: 1;
+        max-height: 100rem;
+      }
+
+      &:focus-visible+label {
+        outline-style: auto;
+      }
+    }
+  }
+
+  .menu-button {
+    display: none;
+
+    @media only screen and (max-width: 768px) {
+      position: relative;
+      display: block;
+      font-size: 2.4rem;
+      font-weight: 400;
+    }
+
+    i {
+
+      &:hover,
+      &:focus {
+        color: var(--alt-fg-color);
+      }
+    }
+  }
+
+  i {
+    color: var(--fg-color);
+    cursor: pointer;
+
+    &:hover,
+    &:focus {
+      color: var(--link-color);
+    }
+  }
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+
+  margin-top: 6rem;
+  text-align: center;
+  font-family: var(--font-family);
+
+  li {
+    display: inline;
+    text-align: center;
+    font-weight: 700;
+    margin: 0 2px;
+    text-align: center;
+    width: 2.2rem;
+
+    a {
+      font-weight: 300;
+    }
+  }
+}
+
+.taxonomy {
+  li {
+    display: inline-block;
+    margin: 0.9rem;
+  }
+
+  .taxonomy-element {
+    display: block;
+    padding: 0.3rem 0.9rem;
+  }
+}
+
+/* Chip: shared by taxonomy lists and post tags. */
+.taxonomy-element,
+.post-meta .tags .tag {
+  background-color: var(--alt-bg-color);
+  border-radius: 0.6rem;
+
+  a,
+  a:active {
+    color: var(--fg-color);
+  }
+}
+
+.footer {
+  width: 100%;
+  text-align: center;
+  font-size: 1.6rem;
+  line-height: 2rem;
+  margin-bottom: 1rem;
+  @media only screen and (max-width: 768px) {
+    font-size: 1.5rem;
+  }
+  a {
+    color: var(--link-color);
   }
 }

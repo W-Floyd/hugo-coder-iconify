@@ -8,6 +8,9 @@
 
 {{ partialCached "head/theme-styles.html" . }}
 
+{{/* Wallpaper and scroll-crossfade styles load only on pages that use them. */}}
+{{ if partial "needs-immersive.html" . }}{{ partialCached "head/css-link.html" "immersive" "immersive" }}{{ end }}
+
 {{ partialCached "head/custom-styles.html" . }}
 
 {{ partialCached "head/custom-icons.html" . }}

@@ -1,0 +1,254 @@
+/* Chroma, GitHub light/dark. Colours use light-dark(); the few non-colour props that differ are reset for dark below. */
+.bg {
+  background-color: light-dark(#f7f7f7, #0d1117);
+  color: light-dark(currentcolor, #e6edf3);
+}
+.chroma {
+  background-color: light-dark(#f7f7f7, #0d1117);
+  -webkit-text-size-adjust: none;
+  color: light-dark(currentcolor, #e6edf3);
+}
+.chroma .err {
+  color: light-dark(#f6f8fa, #f85149);
+  background-color: light-dark(#82071e, transparent);
+}
+.chroma .lnlinks {
+  outline: none;
+  text-decoration: none;
+  color: inherit;
+}
+.chroma .lntd {
+  vertical-align: top;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+.chroma .lntable {
+  border-spacing: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+.chroma .hl {
+  background-color: light-dark(#dedede, #6e7681);
+}
+.chroma .lnt {
+  white-space: pre;
+  -webkit-user-select: none;
+  user-select: none;
+  margin-right: 0.4em;
+  padding: 0 0.4em 0 0.4em;
+  color: light-dark(#7f7f7f, #737679);
+}
+.chroma .ln {
+  white-space: pre;
+  -webkit-user-select: none;
+  user-select: none;
+  margin-right: 0.4em;
+  padding: 0 0.4em 0 0.4em;
+  color: light-dark(#7f7f7f, #6e7681);
+}
+.chroma .line {
+  display: flex;
+}
+.chroma .k,
+.chroma .kd,
+.chroma .kn,
+.chroma .kr,
+.chroma .kt {
+  color: light-dark(#cf222e, #ff7b72);
+}
+.chroma .kc,
+.chroma .kp {
+  color: light-dark(#cf222e, #79c0ff);
+}
+.chroma .na,
+.chroma .p,
+.chroma .ge {
+  color: light-dark(#1f2328, currentcolor);
+}
+.chroma .nc {
+  color: light-dark(#1f2328, #f0883e);
+}
+.chroma .no {
+  color: light-dark(#0550ae, #79c0ff);
+}
+.chroma .nd {
+  color: light-dark(#0550ae, #d2a8ff);
+}
+.chroma .ni {
+  color: light-dark(#6639ba, #ffa657);
+}
+.chroma .nl {
+  color: light-dark(#900, #79c0ff);
+  font-weight: bold;
+}
+.chroma .nn {
+  color: light-dark(#24292e, #ff7b72);
+}
+.chroma .nx {
+  color: light-dark(#1f2328, #e6edf3);
+}
+.chroma .nt {
+  color: light-dark(#0550ae, #7ee787);
+}
+.chroma .nb {
+  color: light-dark(#6639ba, currentcolor);
+}
+.chroma .bp {
+  color: light-dark(#6a737d, currentcolor);
+}
+.chroma .nv,
+.chroma .vc,
+.chroma .vg,
+.chroma .vi,
+.chroma .vm {
+  color: light-dark(#953800, #79c0ff);
+}
+.chroma .nf,
+.chroma .fm {
+  color: light-dark(#6639ba, #d2a8ff);
+}
+.chroma .s,
+.chroma .sb,
+.chroma .sc,
+.chroma .sd,
+.chroma .s2,
+.chroma .si,
+.chroma .sx,
+.chroma .s1 {
+  color: light-dark(#0a3069, #a5d6ff);
+}
+.chroma .sa,
+.chroma .dl,
+.chroma .se,
+.chroma .sh,
+.chroma .sr {
+  color: light-dark(#0a3069, #79c0ff);
+}
+.chroma .ss {
+  color: light-dark(#032f62, #a5d6ff);
+}
+.chroma .m,
+.chroma .mb,
+.chroma .mf,
+.chroma .mh,
+.chroma .mi,
+.chroma .il,
+.chroma .mo {
+  color: light-dark(#0550ae, #a5d6ff);
+}
+.chroma .o,
+.chroma .ow,
+.chroma .or {
+  color: light-dark(#0550ae, #ff7b72);
+}
+.chroma .c,
+.chroma .ch,
+.chroma .cm,
+.chroma .c1,
+.chroma .cs,
+.chroma .cp,
+.chroma .cpf {
+  color: light-dark(#57606a, #8b949e);
+}
+.chroma .gd {
+  color: light-dark(#82071e, #ffa198);
+  background-color: light-dark(#ffebe9, #490202);
+}
+.chroma .gi {
+  color: light-dark(#116329, #56d364);
+  background-color: light-dark(#dafbe1, #0f5323);
+}
+.chroma .go {
+  color: light-dark(#1f2328, #8b949e);
+}
+.chroma .gl {
+  text-decoration: underline;
+}
+.chroma .w {
+  color: light-dark(#fff, #6e7681);
+}
+.chroma .ne {
+  color: light-dark(currentcolor, #f0883e);
+}
+.chroma .py,
+.chroma .ld,
+.chroma .gh,
+.chroma .gu {
+  color: light-dark(currentcolor, #79c0ff);
+}
+.chroma .l {
+  color: light-dark(currentcolor, #a5d6ff);
+}
+.chroma .gr {
+  color: light-dark(currentcolor, #ffa198);
+}
+.chroma .gp {
+  color: light-dark(currentcolor, #8b949e);
+}
+.chroma .gs {
+}
+.chroma .gt {
+  color: light-dark(currentcolor, #ff7b72);
+}
+
+body.colorscheme-dark {
+  .chroma .nc,
+  .chroma .no,
+  .chroma .nd,
+  .chroma .nf,
+  .chroma .fm,
+  .chroma .o,
+  .chroma .ow,
+  .chroma .or,
+  .chroma .ne,
+  .chroma .gh,
+  .chroma .gs {
+    font-weight: bold;
+  }
+  .chroma .c,
+  .chroma .ch,
+  .chroma .cm,
+  .chroma .c1,
+  .chroma .ge {
+    font-style: italic;
+  }
+  .chroma .cs,
+  .chroma .cp,
+  .chroma .cpf {
+    font-weight: bold;
+    font-style: italic;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  body.colorscheme-auto {
+    .chroma .nc,
+    .chroma .no,
+    .chroma .nd,
+    .chroma .nf,
+    .chroma .fm,
+    .chroma .o,
+    .chroma .ow,
+    .chroma .or,
+    .chroma .ne,
+    .chroma .gh,
+    .chroma .gs {
+      font-weight: bold;
+    }
+    .chroma .c,
+    .chroma .ch,
+    .chroma .cm,
+    .chroma .c1,
+    .chroma .ge {
+      font-style: italic;
+    }
+    .chroma .cs,
+    .chroma .cp,
+    .chroma .cpf {
+      font-weight: bold;
+      font-style: italic;
+    }
+  }
+}
