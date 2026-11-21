@@ -467,6 +467,11 @@
       margin: 0;
       position: relative;
 
+      &.active > a,
+      &.ancestor > a {
+        color: var(--link-color);
+      }
+
       @media only screen and (max-width: 768px) {
         float: none !important;
         text-align: center;

@@ -15,9 +15,16 @@
         {{ partial "icons/icon" $context }}
       </label>
       <ul class="navigation-list">
+        {{ $currentPage := . }}
         {{ with .Site.Menus.main}}
-          {{ range sort . }}
+          {{ range . }}
+            {{ if $currentPage.IsMenuCurrent .Menu . }}
+            <li class="navigation-item active" aria-current="page">
+            {{ else if $currentPage.HasMenuCurrent .Menu . }}
+            <li class="navigation-item ancestor" aria-current="true">
+            {{ else }}
             <li class="navigation-item">
+            {{ end }}
               <a class="navigation-link {{ .Params.class }}" href="{{ index (apply (slice .URL) (.Params.urlFunc | default "relLangURL") ".") 0 }}">{{ .Name }}</a>
             </li>
           {{ end }}
