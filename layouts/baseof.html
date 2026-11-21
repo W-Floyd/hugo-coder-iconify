@@ -57,10 +57,8 @@
   </main>
 
   {{ if .HasShortcode "mermaid" }}
-  {{ with resources.Get "js/mermaid.min.js" | fingerprint }}
-  <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}"></script>
-  {{ end }}
-  <script>
+  <script type="module">
+    import mermaid from '{{ "js/mermaid/mermaid.esm.min.mjs" | relURL }}';
     mermaid.initialize({startOnLoad: true});
   </script>
   {{ end }}
