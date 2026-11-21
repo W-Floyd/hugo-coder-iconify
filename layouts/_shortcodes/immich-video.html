@@ -10,7 +10,7 @@
   Flipping the toggle mid-playback moves an HLS video to the nearest level at the
   next segment boundary (hls.js nextLevel); the MP4 fallback is one file and
   can't change.
-  The player lives in assets/js/immich-video.js and assets/css/immich-video.css.
+  The player lives in assets/js/immich-video.ts and assets/css/immich-video.css.
   With params.csp, the Immich host needs img-src, media-src (plus blob:) and
   connect-src.
   Playback uses a custom control bar (play, seek, time, mute, quality, fullscreen).
@@ -69,7 +69,7 @@
 {{- end -}}
 {{- $css := resources.Get "css/immich-video.css" | minify | fingerprint -}}
 {{- $hls := resources.Get "js/hls.minimal.min.js" | fingerprint -}}
-{{- $js := resources.Get "js/immich-video.js" | js.Build (dict "minify" true "target" "es2017" "params" (dict "hls" $hls.RelPermalink)) | fingerprint -}}
+{{- $js := resources.Get "js/immich-video.ts" | js.Build (dict "minify" true "target" "es2017" "params" (dict "hls" $hls.RelPermalink)) | fingerprint -}}
 <div class="immich-video" data-figure-item>
 <link rel="stylesheet" href="{{ $css.RelPermalink }}">
 <script src="{{ $js.RelPermalink }}" defer></script>

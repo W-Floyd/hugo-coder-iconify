@@ -80,7 +80,7 @@
     (with the site as context), and its fingerprinted URL is baked into coder.js, so a
     change to it busts both caches. Without any, coder.js is unchanged.
   */}}
-  {{ $script := resources.Get "js/coder.js" }}
+  {{ $script := resources.Get "js/coder.ts" | js.Build (dict "targetPath" "js/coder.js" "minify" (not hugo.IsServer) "target" "es2017") }}
   {{ with site.Params.lazyScripts }}
     {{ $lazy := "" }}
     {{ range . }}
@@ -97,6 +97,7 @@
   {{ $script = $script | resources.Minify | resources.Fingerprint }}
   <script src="{{ $script.RelPermalink }}" integrity="{{ $script.Data.Integrity }}"></script>
   {{ end }}
+  {{ partial "page-scripts.html" . }}
   {{ end }}
 
   {{ range .Site.Params.customJS }}

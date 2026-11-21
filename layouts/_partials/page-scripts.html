@@ -1,0 +1,16 @@
+{{- /* Per-page bundles, so coder.js only carries what every page needs. */ -}}
+{{- $names := slice -}}
+{{- if partial "needs-immersive.html" . }}{{ $names = $names | append "immersive" }}{{ end -}}
+{{- if and .IsPage (strings.Contains (string .Content) "footnote-ref") }}{{ $names = $names | append "footnotes" }}{{ end -}}
+{{- if and .IsPage (or (and site.Params.utterances site.Params.utterances.repo) (and site.Params.giscus site.Params.giscus.repo)) (not .Params.disableComments) }}{{ $names = $names | append "embeds" }}{{ end -}}
+{{- range $names }}
+  {{- with resources.Get (printf "js/%s.ts" .) | js.Build (dict "targetPath" (printf "js/%s.js" .) "minify" (not hugo.IsServer) "target" "es2017") }}
+    {{- if hugo.IsServer }}
+<script defer src="{{ .RelPermalink }}"></script>
+    {{- else }}
+      {{- with . | fingerprint }}
+<script defer src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}"></script>
+      {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}

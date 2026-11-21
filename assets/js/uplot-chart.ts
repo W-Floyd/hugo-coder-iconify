@@ -1,15 +1,22 @@
 // Draws every {{< uplot >}} chart on the page; see layouts/_shortcodes/uplot.html.
 // Deferred scripts run before DOMContentLoaded, so uPlot is loaded by then.
+interface Plot {
+  series: { show: boolean }[];
+  destroy(): void;
+  setSize(size: { width: number; height: number }): void;
+}
+declare const uPlot: new (opts: object, data: unknown, el: HTMLElement) => Plot;
+
 document.addEventListener("DOMContentLoaded", () => {
   const palette = ["#3b82f6", "#e07a1f", "#2a9d8f", "#c2417a"];
-  const charts = [...document.querySelectorAll(".uplot-chart")].map((fig) => {
-    const { opts, columns } = JSON.parse(fig.querySelector("script").textContent);
+  const charts = [...document.querySelectorAll<HTMLElement>(".uplot-chart")].map((fig) => {
+    const { opts, columns } = JSON.parse(fig.querySelector("script")!.textContent!);
     // keys[0] is x; Hugo's maps don't keep order, so keys carries it.
-    const data = opts.keys.map((k) => columns[k]);
-    const el = fig.querySelector(".uplot-chart__plot");
-    let plot;
+    const data = opts.keys.map((k: string) => columns[k]);
+    const el = fig.querySelector<HTMLElement>(".uplot-chart__plot")!;
+    let plot: Plot | undefined;
     // Series visibility, carried across redraws so legend toggles survive them.
-    const shown = opts.keys.slice(1).map((k) => !opts.hidden.includes(k));
+    const shown = opts.keys.slice(1).map((k: string) => !opts.hidden.includes(k));
     const draw = () => {
       plot?.series.slice(1).forEach((s, i) => (shown[i] = s.show));
       plot?.destroy();
@@ -26,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ],
         series: [
           { label: opts.xlabel },
-          ...opts.keys.slice(1).map((label, i) => ({
+          ...opts.keys.slice(1).map((label: string, i: number) => ({
             label,
             show: shown[i],
             stroke: palette[i % palette.length],
@@ -39,10 +46,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }, data, el);
     };
     draw();
-    new ResizeObserver(() => plot.setSize({ width: el.clientWidth, height: 320 })).observe(el);
+    new ResizeObserver(() => plot?.setSize({ width: el.clientWidth, height: 320 })).observe(el);
     return draw;
   });
   // The theme switches schemes by swapping a class on <body>.
   new MutationObserver(() => charts.forEach((draw) => draw()))
     .observe(document.body, { attributes: true, attributeFilter: ["class"] });
 });
+
+export {};
